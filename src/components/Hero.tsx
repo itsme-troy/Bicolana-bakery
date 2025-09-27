@@ -5,9 +5,9 @@ export default function Hero() {
   return (
     <section id="home" className="relative">
       <div className="relative h-[70vh] md:h-[80vh]">
-        {/* background image */}
+        {}
         <img
-          src="/hero.jpg"
+          src="/bakery.avif"
           alt="Bakery interior"
           className="absolute inset-0 h-full w-full object-cover"
         />

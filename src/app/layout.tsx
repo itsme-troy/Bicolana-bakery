@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Inter } from "next/font/google";
+import { Roboto } from "next/font/google";
 
-const inter = Inter({ subsets: ["latin"] });
+const roboto = Roboto({ subsets: ["latin"], weight: ["400", "500", "700"] });
 
 export const metadata: Metadata = {
   title: "Bicolana’s Bakery",
@@ -16,8 +16,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-neutral-50 text-neutral-900`}>
-        {children}
+      <body className={`${roboto.className} bg-neutral-50 text-neutral-900`}>
+        <main className="mx-auto border">{children}</main>
       </body>
     </html>
   );
