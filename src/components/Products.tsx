@@ -1,12 +1,12 @@
 export default function Products() {
   const items = [
-    { id: 1, name: "Pandesal", price: "₱5", img: "/products/pandesal.jpg" },
+    { id: 1, name: "Pandesal", price: "₱5", img: "/products/pandesal.avif" },
     { id: 2, name: "Ensaymada", price: "₱35", img: "/products/ensaymada.jpg" },
     {
       id: 3,
-      name: "Bicol Express Roll",
-      price: "₱60",
-      img: "/products/bicol-roll.jpg",
+      name: "Pande coco",
+      price: "₱5",
+      img: "/products/pandecoco.jpg",
     },
     {
       id: 4,

@@ -6,12 +6,13 @@ export default function Footer() {
           © {new Date().getFullYear()} Bicolana’s Bakery. All rights reserved.
         </p>
         <div className="text-sm text-neutral-800">
-          🍞 Unit 1, Your Street, Naga City •
+          🍞 blk 30, lot 18 Harvard Avenue West Gov. Heights 2 Cabuco, Trece
+          Martires Cavite •
           <a
             className="ml-2 text-orange-700 hover:underline"
             href="tel:+639000000000"
           >
-            +63 900 000 0000
+            09947216915
           </a>
         </div>
       </div>
