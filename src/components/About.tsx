@@ -66,14 +66,14 @@ export default function About() {
               alt="Baker preparing bread"
               width={600}
               height={400}
-              className="w-full h-[420px] object-cover"
+              className="w-full h-[500px] object-cover"
             />
           </div>
 
           {/* Badge */}
           <div className="absolute -bottom-6 left-6">
             <div className="rounded-xl bg-orange-600 text-white px-5 py-4 shadow-lg">
-              <div className="text-2xl font-extrabold">25+</div>
+              <div className="text-2xl font-extrabold">3+</div>
               <div className="text-sm opacity-90">Years of Experience</div>
             </div>
           </div>
