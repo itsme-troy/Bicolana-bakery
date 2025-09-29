@@ -1,3 +1,13 @@
+import {
+  Home,
+  ShoppingBag,
+  Info,
+  Phone,
+  ShoppingCart,
+  User,
+  Login,
+} from "lucide-react";
+
 export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur border-b text-neutral-800">
@@ -9,22 +19,38 @@ export default function Navbar() {
           </span>
         </div>
         <nav className="hidden md:flex gap-6 text-sm">
-          <a href="#home" className="hover:text-orange-600">
-            Home
+          <a
+            href="#home"
+            className="flex items-center gap-1 hover:text-orange-600"
+          >
+            <Home size={18} /> Home
           </a>
-          <a href="#products" className="hover:text-orange-600">
-            Products
+          <a
+            href="#products"
+            className="flex items-center gap-1 hover:text-orange-600"
+          >
+            <ShoppingCart size={18} /> Products
           </a>
-          <a href="#about" className="hover:text-orange-600">
-            About
+          <a
+            href="#about"
+            className="flex items-center gap-1 hover:text-orange-600"
+          >
+            <Info size={18} /> About
           </a>
-          <a href="#contact" className="hover:text-orange-600">
-            Contact
+          <a
+            href="#contact"
+            className="flex items-center gap-1 hover:text-orange-600"
+          >
+            <Phone size={18} /> Contact
           </a>
-          <a href="#cart" className="hover:text-orange-600">
-            Cart
-          </a>
+          {/* <a
+            href="/login"
+            className="flex items-center gap-1 hover:text-orange-600"
+          >
+            <LogIn size={18} /> Login
+          </a> */}
         </nav>
+
         <a
           href="#order"
           className="rounded-md bg-orange-600 px-4 py-2 text-white text-sm font-medium hover:bg-orange-700"
