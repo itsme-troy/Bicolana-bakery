@@ -1,4 +1,5 @@
 import Image from "next/image";
+import ImageCarousel from "@/components/ImageCarousel";
 
 export default function About() {
   const features = [
@@ -58,17 +59,19 @@ export default function About() {
           </div>
         </div>
 
-        {/* Right: image */}
+        {/* Right: Image Carousel */}
         <div className="relative">
-          <div className="rounded-2xl overflow-hidden shadow-lg">
-            <Image
-              src="/about-baker.jpg"
-              alt="Baker preparing bread"
-              width={600}
-              height={400}
-              className="w-full h-[500px] object-cover"
-            />
-          </div>
+          {/* Right: carousel */}
+          <ImageCarousel
+            images={[
+              "/about/about-baker.jpg",
+              "/about/about-1.jpg",
+              "/about/about-2.jpg",
+              "/about/about-3.jpg",
+            ]}
+            objectPosition="top" // keeps more space above the head
+            intervalMs={4000}
+          />
 
           {/* Badge */}
           <div className="absolute -bottom-6 left-6">
