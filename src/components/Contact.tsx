@@ -87,7 +87,8 @@ export default function Contact() {
                 <div>
                   <div className="font-semibold">Location</div>
                   <div className="text-neutral-700">
-                    Metro Manila, Philippines
+                    blk 30, lot 18 Harvard Avenue West Gov. Heights 2 Cabuco,
+                    Trece Martires Cavite
                   </div>
                 </div>
               </li>

@@ -5,7 +5,7 @@ import {
   Phone,
   ShoppingCart,
   User,
-  Login,
+  LogIn,
 } from "lucide-react";
 
 export default function Navbar() {
@@ -43,12 +43,12 @@ export default function Navbar() {
           >
             <Phone size={18} /> Contact
           </a>
-          {/* <a
+          <a
             href="/login"
             className="flex items-center gap-1 hover:text-orange-600"
           >
             <LogIn size={18} /> Login
-          </a> */}
+          </a>
         </nav>
 
         <a
