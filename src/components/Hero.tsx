@@ -4,7 +4,7 @@ const pacifico = Pacifico({ weight: "400", subsets: ["latin"] });
 export default function Hero() {
   return (
     <section id="home" className="relative">
-      <div className="relative h-[70vh] md:h-[80vh]">
+      <div className="relative h-[85vh] md:h-[85vh]">
         {}
         <img
           src="/bakery.avif"
