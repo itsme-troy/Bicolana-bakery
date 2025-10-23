@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Products() {
   const items = [
     { id: 1, name: "Pandesal", price: "₱5", img: "/products/pandesal.avif" },
@@ -44,6 +46,15 @@ export default function Products() {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* View All Button */}
+        <div className="flex justify-center mt-6">
+          <Link href="/products">
+            <button className="px-4 py-3 bg-orange-500 text-white font-medium rounded-md hover:scale-105 hover:shadow-lg transition-transform duration-200 text-sm">
+              View All Products →
+            </button>
+          </Link>
         </div>
       </div>
     </section>
