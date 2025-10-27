@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Image from "next/image";
 import { Home, ShoppingCart, Info, Phone, LogIn, Menu, X } from "lucide-react";
 
 export default function Navbar() {
@@ -19,12 +20,16 @@ export default function Navbar() {
           </button>
 
           {/* Logo */}
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-full bg-orange-500" />
-            <span className="font-semibold text-orange-700">
-              Bicolana’s Bakery
-            </span>
-          </div>
+
+          <a href="/" className="flex items-center gap-2">
+            <Image
+              src="/Bakery-logo.png"
+              alt="Bicolana's Bakery Logo"
+              width={50}
+              height={50}
+              className="rounded-full object-contain"
+            />
+          </a>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex gap-6 text-sm">
