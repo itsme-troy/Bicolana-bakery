@@ -27,7 +27,7 @@ export default function Navbar() {
               alt="Bicolana's Bakery Logo"
               width={50}
               height={50}
-              className="rounded-full object-contain"
+              className="rounded-full object-contain scale-180"
             />
           </a>
 

@@ -1,3 +1,4 @@
+import Navbar from "@/components/Navbar";
 import LoginForm from "@/components/LoginForm";
 import Footer from "@/components/Footer";
 
@@ -7,6 +8,9 @@ export const metadata = {
 export default function LoginPage() {
   return (
     <div className="flex flex-col min-h-screen bg-white">
+      {/* ✅ Navbar */}
+      <Navbar />
+
       {/* Main content */}
       <main className="flex flex-grow items-center justify-center">
         <div className="w-full max-w-md rounded-2xl border bg-white p-8 shadow-lg">
