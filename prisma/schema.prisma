@@ -14,3 +14,12 @@ model User {
   password  String
   createdAt DateTime @default(now())
 }
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  price       Float
+  image       String?   // optional: store image URLs
+  createdAt   DateTime  @default(now())
+}

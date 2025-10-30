@@ -23,11 +23,13 @@ export default function Navbar() {
 
           <a href="/" className="flex items-center gap-2">
             <Image
-              src="/Bakery-logo.png"
+              src="/Bakery-logo.svg"
               alt="Bicolana's Bakery Logo"
               width={50}
               height={50}
-              className="rounded-full object-contain scale-180"
+              unoptimized
+              priority
+              className="object-contain scale-180"
             />
           </a>
 
