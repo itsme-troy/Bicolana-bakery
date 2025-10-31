@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
 
+// (handles GET and POST for products)
 const prisma = new PrismaClient();
 
 export async function GET() {
@@ -34,6 +35,23 @@ export async function POST(req: Request) {
     console.error("Error creating product:", error);
     return NextResponse.json(
       { error: "Failed to create product" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  const id = parseInt(params.id);
+  try {
+    await prisma.product.delete({ where: { id } });
+    return NextResponse.json({ message: "Product deleted" });
+  } catch (error) {
+    console.error("Error deleting product:", error);
+    return NextResponse.json(
+      { error: "Failed to delete product" },
       { status: 500 }
     );
   }
