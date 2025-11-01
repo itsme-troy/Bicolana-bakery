@@ -155,7 +155,8 @@ export default function AdminPage() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="bg-orange-100 text-left text-sm">
-                    <th className="p-3">ID</th>
+                    <th className="p-3">#</th> {/* ✅ Added */}
+                    {/* <th className="p-3">ID</th> */}
                     <th className="p-3">Name</th>
                     <th className="p-3">Price</th>
                     <th className="p-3">Description</th>
@@ -173,12 +174,17 @@ export default function AdminPage() {
                       </td>
                     </tr>
                   ) : (
-                    products.map((p: any) => (
+                    products.map((p: any, index: number) => (
                       <tr
                         key={p.id}
                         className="group border-t hover:bg-orange-50 text-sm transition-all duration-200"
                       >
-                        <td className="p-3">{p.id}</td>
+                        {/* ✅ Row Number Column */}
+                        <td className="p-3 text-neutral-500 font-semibold">
+                          {index + 1}
+                        </td>
+
+                        {/* <td className="p-3">{p.id}</td> */}
                         <td className="p-3 font-medium">{p.name}</td>
                         <td className="p-3 text-orange-600">₱{p.price}</td>
                         <td className="p-3">
@@ -290,6 +296,7 @@ export default function AdminPage() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="bg-orange-100 text-left text-sm">
+                    <th className="p-3">#</th> {/* ✅ Row Number Column */}
                     <th className="p-3">ID</th>
                     <th className="p-3">Name</th>
                     <th className="p-3">Email</th>
@@ -307,19 +314,29 @@ export default function AdminPage() {
                       </td>
                     </tr>
                   ) : (
-                    users.map((u: any) => (
-                      <tr
-                        key={u.id}
-                        className="border-t hover:bg-orange-50 text-sm"
-                      >
-                        <td className="p-3">{u.id}</td>
-                        <td className="p-3 font-medium">{u.name}</td>
-                        <td className="p-3">{u.email}</td>
-                        <td className="p-3">
-                          {new Date(u.createdAt).toLocaleDateString()}
-                        </td>
-                      </tr>
-                    ))
+                    users.map(
+                      (
+                        u: any,
+                        index: number // pass index variable
+                      ) => (
+                        <tr
+                          key={u.id}
+                          className="border-t hover:bg-orange-50 text-sm"
+                        >
+                          {/* ✅ New Row Number Cell */}
+                          <td className="p-3 text-neutral-500 font-semibold">
+                            {index + 1}
+                          </td>
+
+                          <td className="p-3">{u.id}</td>
+                          <td className="p-3 font-medium">{u.name}</td>
+                          <td className="p-3">{u.email}</td>
+                          <td className="p-3">
+                            {new Date(u.createdAt).toLocaleDateString()}
+                          </td>
+                        </tr>
+                      )
+                    )
                   )}
                 </tbody>
               </table>
