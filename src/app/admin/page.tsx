@@ -1,22 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Trash2 } from "lucide-react"; // clean icon from lucide-react
+import { Trash2, Edit3 } from "lucide-react";
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<"products" | "users">("products");
   const [products, setProducts] = useState([]);
   const [users, setUsers] = useState([]);
-  const [showForm, setShowForm] = useState(false);
 
-  // Product form fields
+  // Form states
+  const [showForm, setShowForm] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [editId, setEditId] = useState<number | null>(null);
+
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [image, setImage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Fetch data on load
   useEffect(() => {
     fetchProducts();
     fetchUsers();
@@ -34,51 +36,63 @@ export default function AdminPage() {
     setUsers(data);
   };
 
+  // 🧡 Handle Add or Update Submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !price) return alert("Name and price are required!");
-
     setLoading(true);
+
     try {
-      const res = await fetch("/api/products", {
-        method: "POST",
+      const method = editMode ? "PUT" : "POST";
+      const url = editMode ? `/api/products/${editId}` : "/api/products";
+
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, description, price, image }),
       });
 
-      if (!res.ok) throw new Error("Failed to add product");
+      if (!res.ok) throw new Error("Failed to save product");
 
+      // Reset form
       setName("");
       setDescription("");
       setPrice("");
       setImage("");
+      setEditMode(false);
+      setEditId(null);
       setShowForm(false);
       fetchProducts();
     } catch (error) {
       console.error(error);
-      alert("Error adding product!");
+      alert("Error saving product!");
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle product deletion
+  // 🗑 Handle Delete
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this product?")) return;
-
     try {
-      const res = await fetch(`/api/products/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!res.ok) throw new Error("Failed to delete product");
-
-      // Refresh product list after deletion
+      const res = await fetch(`/api/products/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete");
       fetchProducts();
     } catch (error) {
-      console.error("Error deleting product:", error);
+      console.error(error);
       alert("Failed to delete product");
     }
+  };
+
+  // ✏️ Handle Edit (fill form)
+  const handleEdit = (product: any) => {
+    setEditMode(true);
+    setEditId(product.id);
+    setName(product.name);
+    setDescription(product.description || "");
+    setPrice(product.price);
+    setImage(product.image || "");
+    setShowForm(true);
   };
 
   return (
@@ -119,11 +133,17 @@ export default function AdminPage() {
       <main className="flex-1 p-10">
         {activeTab === "products" ? (
           <>
-            {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-3xl font-bold">Product Management</h1>
               <button
-                onClick={() => setShowForm(!showForm)}
+                onClick={() => {
+                  setShowForm(!showForm);
+                  setEditMode(false);
+                  setName("");
+                  setDescription("");
+                  setPrice("");
+                  setImage("");
+                }}
                 className="bg-orange-600 text-white px-4 py-2 rounded-md font-medium hover:bg-orange-700 transition"
               >
                 {showForm ? "✖ Cancel" : "➕ Create"}
@@ -139,7 +159,7 @@ export default function AdminPage() {
                     <th className="p-3">Name</th>
                     <th className="p-3">Price</th>
                     <th className="p-3">Description</th>
-                    <th className="p-3 text-center w-20">Actions</th>
+                    <th className="p-3 text-center w-32">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -164,14 +184,20 @@ export default function AdminPage() {
                         <td className="p-3">
                           {p.description || "No description"}
                         </td>
-                        <td className="p-3 text-center">
-                          {/* Delete Button (visible on hover) */}
+                        <td className="p-3 text-center flex justify-center gap-3">
+                          <button
+                            onClick={() => handleEdit(p)}
+                            className="opacity-0 group-hover:opacity-100 transition text-blue-600 hover:text-blue-800"
+                            title="Edit Product"
+                          >
+                            <Edit3 size={26} />
+                          </button>
                           <button
                             onClick={() => handleDelete(p.id)}
                             className="opacity-0 group-hover:opacity-100 transition text-red-600 hover:text-red-800"
                             title="Delete Product"
                           >
-                            <Trash2 size={28} /> {/* 👈 increased icon size */}
+                            <Trash2 size={26} />
                           </button>
                         </td>
                       </tr>
@@ -181,14 +207,14 @@ export default function AdminPage() {
               </table>
             </div>
 
-            {/* Add Product Form */}
+            {/* Add/Edit Product Form */}
             {showForm && (
               <form
                 onSubmit={handleSubmit}
                 className="bg-white border border-orange-200 shadow-md rounded-xl p-6 max-w-lg animate-fadeIn"
               >
                 <h2 className="text-lg font-semibold mb-4 text-orange-600">
-                  Add New Product
+                  {editMode ? "Edit Product" : "Add New Product"}
                 </h2>
 
                 <div className="mb-3">
@@ -245,7 +271,13 @@ export default function AdminPage() {
                   disabled={loading}
                   className="w-full bg-orange-600 text-white py-2 rounded-md font-semibold hover:bg-orange-700 transition disabled:opacity-60"
                 >
-                  {loading ? "Adding..." : "Add Product"}
+                  {loading
+                    ? editMode
+                      ? "Updating..."
+                      : "Adding..."
+                    : editMode
+                    ? "Update Product"
+                    : "Add Product"}
                 </button>
               </form>
             )}
