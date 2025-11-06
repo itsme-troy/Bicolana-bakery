@@ -1,50 +1,56 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Trash2, Edit3 } from "lucide-react";
+
+// 🧩 Import modular components
+import Sidebar from "./components/Sidebar";
+import ProductTable from "./components/ProductTable";
+import ProductForm from "./components/ProductForm";
+import UserTable from "./components/UserTable";
+import UserForm from "./components/UserForm";
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<"products" | "users">("products");
-  const [products, setProducts] = useState([]);
-  const [users, setUsers] = useState([]);
 
-  // User form states
-  const [userName, setUserName] = useState("");
-  const [userEmail, setUserEmail] = useState("");
-  const [userPassword, setUserPassword] = useState("");
-  const [userRole, setUserRole] = useState("customer");
-  const [editUserMode, setEditUserMode] = useState(false);
-  const [editUserId, setEditUserId] = useState<number | null>(null);
-
-  // Form states
+  // Shared UI states
   const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  // PRODUCT STATES
+  const [products, setProducts] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
-
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [image, setImage] = useState("");
-  const [loading, setLoading] = useState(false);
 
+  // USER STATES
+  const [users, setUsers] = useState([]);
+  const [editUserMode, setEditUserMode] = useState(false);
+  const [editUserId, setEditUserId] = useState<number | null>(null);
+  const [userName, setUserName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [userPassword, setUserPassword] = useState("");
+  const [userRole, setUserRole] = useState("customer");
+
+  // 🔄 Fetch data on load
   useEffect(() => {
     fetchProducts();
     fetchUsers();
   }, []);
 
+  // 📦 PRODUCTS ---------------------------------------------------
   const fetchProducts = async () => {
-    const res = await fetch("/api/products");
-    const data = await res.json();
-    setProducts(data);
+    try {
+      const res = await fetch("/api/products");
+      const data = await res.json();
+      setProducts(data);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
   };
 
-  const fetchUsers = async () => {
-    const res = await fetch("/api/users");
-    const data = await res.json();
-    setUsers(data);
-  };
-
-  // 🧡 Handle Add or Update Submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !price) return alert("Name and price are required!");
@@ -62,7 +68,7 @@ export default function AdminPage() {
 
       if (!res.ok) throw new Error("Failed to save product");
 
-      // Reset form
+      // Reset form and refresh data
       setName("");
       setDescription("");
       setPrice("");
@@ -79,7 +85,16 @@ export default function AdminPage() {
     }
   };
 
-  // 🗑 Handle Delete
+  const handleEdit = (product: any) => {
+    setEditMode(true);
+    setEditId(product.id);
+    setName(product.name);
+    setDescription(product.description || "");
+    setPrice(product.price);
+    setImage(product.image || "");
+    setShowForm(true);
+  };
+
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this product?")) return;
     try {
@@ -92,61 +107,54 @@ export default function AdminPage() {
     }
   };
 
-  // ✏️ Handle Edit (fill form)
-  const handleEdit = (product: any) => {
-    setEditMode(true);
-    setEditId(product.id);
-    setName(product.name);
-    setDescription(product.description || "");
-    setPrice(product.price);
-    setImage(product.image || "");
-    setShowForm(true);
+  // 👥 USERS ------------------------------------------------------
+  const fetchUsers = async () => {
+    try {
+      const res = await fetch("/api/users");
+      const data = await res.json();
+      setUsers(data);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
   };
 
-  // Create or Update User
   const handleUserSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!userName || !userEmail || !userPassword)
       return alert("All fields are required!");
 
-    const method = editUserMode ? "PUT" : "POST";
-    const url = editUserMode ? `/api/users/${editUserId}` : "/api/users";
+    try {
+      const method = editUserMode ? "PUT" : "POST";
+      const url = editUserMode ? `/api/users/${editUserId}` : "/api/users";
 
-    const res = await fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: userName,
-        email: userEmail,
-        password: userPassword,
-        role: userRole,
-      }),
-    });
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: userName,
+          email: userEmail,
+          password: userPassword,
+          role: userRole,
+        }),
+      });
 
-    if (!res.ok) {
+      if (!res.ok) throw new Error("Error saving user");
+
+      // Reset form
+      setUserName("");
+      setUserEmail("");
+      setUserPassword("");
+      setUserRole("customer");
+      setEditUserMode(false);
+      setEditUserId(null);
+      setShowForm(false);
+      fetchUsers();
+    } catch (error) {
+      console.error(error);
       alert("Error saving user!");
-      return;
     }
-
-    fetchUsers();
-    setUserName("");
-    setUserEmail("");
-    setUserPassword("");
-    setUserRole("customer");
-    setEditUserMode(false);
-    setEditUserId(null);
-    setShowForm(false);
   };
 
-  // Delete User
-  const handleDeleteUser = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this user?")) return;
-
-    await fetch(`/api/users/${id}`, { method: "DELETE" });
-    fetchUsers();
-  };
-
-  // Edit User (prefill form)
   const handleEditUser = (u: any) => {
     setEditUserMode(true);
     setEditUserId(u.id);
@@ -157,44 +165,28 @@ export default function AdminPage() {
     setShowForm(true);
   };
 
+  const handleDeleteUser = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this user?")) return;
+    try {
+      await fetch(`/api/users/${id}`, { method: "DELETE" });
+      fetchUsers();
+    } catch (error) {
+      console.error(error);
+      alert("Failed to delete user");
+    }
+  };
+
+  // 🧩 UI ---------------------------------------------------------
   return (
     <div className="flex min-h-screen bg-gray-100 text-neutral-900">
       {/* Sidebar */}
-      <aside className="w-64 bg-neutral-900 text-white p-5 flex flex-col justify-between">
-        <div>
-          <h1 className="text-2xl font-bold mb-8 text-orange-500">
-            Admin Panel
-          </h1>
-          <nav className="space-y-3">
-            <button
-              onClick={() => setActiveTab("products")}
-              className={`block w-full text-left px-4 py-2 rounded-md transition ${
-                activeTab === "products"
-                  ? "bg-orange-600"
-                  : "hover:bg-neutral-800"
-              }`}
-            >
-              📦 Products
-            </button>
-            <button
-              onClick={() => setActiveTab("users")}
-              className={`block w-full text-left px-4 py-2 rounded-md transition ${
-                activeTab === "users" ? "bg-orange-600" : "hover:bg-neutral-800"
-              }`}
-            >
-              👤 Users
-            </button>
-          </nav>
-        </div>
-        <p className="text-xs text-neutral-400 mt-10">
-          © 2025 Bicolana’s Bakery
-        </p>
-      </aside>
+      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {/* Main Content */}
       <main className="flex-1 p-10">
         {activeTab === "products" ? (
           <>
+            {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-3xl font-bold">Product Management</h1>
               <button
@@ -212,287 +204,73 @@ export default function AdminPage() {
               </button>
             </div>
 
-            {/* Product List */}
-            <div className="bg-white shadow-sm rounded-lg border border-neutral-200 mb-8">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-orange-100 text-left text-sm">
-                    <th className="p-3">#</th> {/* ✅ Added */}
-                    {/* <th className="p-3">ID</th> */}
-                    <th className="p-3">Name</th>
-                    <th className="p-3">Price</th>
-                    <th className="p-3">Description</th>
-                    <th className="p-3 text-center w-32">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {products.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={5}
-                        className="text-center p-4 text-neutral-500"
-                      >
-                        No products yet.
-                      </td>
-                    </tr>
-                  ) : (
-                    products.map((p: any, index: number) => (
-                      <tr
-                        key={p.id}
-                        className="group border-t hover:bg-orange-50 text-sm transition-all duration-200"
-                      >
-                        {/* ✅ Row Number Column */}
-                        <td className="p-3 text-neutral-500 font-semibold">
-                          {index + 1}
-                        </td>
+            {/* Table */}
+            <ProductTable
+              products={products}
+              handleEdit={handleEdit}
+              handleDelete={handleDelete}
+            />
 
-                        {/* <td className="p-3">{p.id}</td> */}
-                        <td className="p-3 font-medium">{p.name}</td>
-                        <td className="p-3 text-orange-600">₱{p.price}</td>
-                        <td className="p-3">
-                          {p.description || "No description"}
-                        </td>
-                        <td className="p-3 text-center flex justify-center gap-3">
-                          <button
-                            onClick={() => handleEdit(p)}
-                            className="opacity-0 group-hover:opacity-100 transition text-blue-600 hover:text-blue-800"
-                            title="Edit Product"
-                          >
-                            <Edit3 size={26} />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(p.id)}
-                            className="opacity-0 group-hover:opacity-100 transition text-red-600 hover:text-red-800"
-                            title="Delete Product"
-                          >
-                            <Trash2 size={26} />
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Add/Edit Product Form */}
+            {/* Form */}
             {showForm && (
-              <form
-                onSubmit={handleSubmit}
-                className="bg-white border border-orange-200 shadow-md rounded-xl p-6 max-w-lg animate-fadeIn"
-              >
-                <h2 className="text-lg font-semibold mb-4 text-orange-600">
-                  {editMode ? "Edit Product" : "Add New Product"}
-                </h2>
-
-                <div className="mb-3">
-                  <label className="block text-sm font-medium mb-1">Name</label>
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="w-full border border-neutral-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-orange-500"
-                    placeholder="e.g. Pandesal"
-                  />
-                </div>
-
-                <div className="mb-3">
-                  <label className="block text-sm font-medium mb-1">
-                    Description
-                  </label>
-                  <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    className="w-full border border-neutral-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-orange-500"
-                    placeholder="Short description"
-                  />
-                </div>
-
-                <div className="mb-3">
-                  <label className="block text-sm font-medium mb-1">
-                    Price (₱)
-                  </label>
-                  <input
-                    type="number"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    className="w-full border border-neutral-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-orange-500"
-                    placeholder="e.g. 10"
-                  />
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-1">
-                    Image URL
-                  </label>
-                  <input
-                    type="text"
-                    value={image}
-                    onChange={(e) => setImage(e.target.value)}
-                    className="w-full border border-neutral-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-orange-500"
-                    placeholder="/pandesal.png"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-orange-600 text-white py-2 rounded-md font-semibold hover:bg-orange-700 transition disabled:opacity-60"
-                >
-                  {loading
-                    ? editMode
-                      ? "Updating..."
-                      : "Adding..."
-                    : editMode
-                    ? "Update Product"
-                    : "Add Product"}
-                </button>
-              </form>
+              <ProductForm
+                editMode={editMode}
+                name={name}
+                description={description}
+                price={price}
+                image={image}
+                loading={loading}
+                setName={setName}
+                setDescription={setDescription}
+                setPrice={setPrice}
+                setImage={setImage}
+                handleSubmit={handleSubmit}
+              />
             )}
           </>
         ) : (
           <>
-            {/* Users Table */}
-            <>
-  <div className="flex items-center justify-between mb-6">
-    <h1 className="text-3xl font-bold">User Management</h1>
-    <button
-      onClick={() => {
-        setShowForm(!showForm);
-        setEditUserMode(false);
-        setUserName("");
-        setUserEmail("");
-        setUserPassword("");
-        setUserRole("customer");
-      }}
-      className="bg-orange-600 text-white px-4 py-2 rounded-md font-medium hover:bg-orange-700 transition"
-    >
-      {showForm ? "✖ Cancel" : "➕ Create User"}
-    </button>
-  </div>
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <h1 className="text-3xl font-bold">User Management</h1>
+              <button
+                onClick={() => {
+                  setShowForm(!showForm);
+                  setEditUserMode(false);
+                  setUserName("");
+                  setUserEmail("");
+                  setUserPassword("");
+                  setUserRole("customer");
+                }}
+                className="bg-orange-600 text-white px-4 py-2 rounded-md font-medium hover:bg-orange-700 transition"
+              >
+                {showForm ? "✖ Cancel" : "➕ Create User"}
+              </button>
+            </div>
 
-  {/* Users Table */}
-  <div className="bg-white shadow-sm rounded-lg border border-neutral-200 mb-8">
-    <table className="w-full border-collapse">
-      <thead>
-        <tr className="bg-orange-100 text-left text-sm">
-          <th className="p-3">#</th>
-          <th className="p-3">Name</th>
-          <th className="p-3">Email</th>
-          <th className="p-3">Role</th>
-          <th className="p-3">Created At</th>
-          <th className="p-3 text-center w-32">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {users.length === 0 ? (
-          <tr>
-            <td colSpan={6} className="text-center p-4 text-neutral-500">
-              No users found.
-            </td>
-          </tr>
-        ) : (
-          users.map((u: any, index: number) => (
-            <tr
-              key={u.id}
-              className="group border-t hover:bg-orange-50 text-sm transition-all duration-200"
-            >
-              <td className="p-3 text-neutral-500 font-semibold">
-                {index + 1}
-              </td>
-              <td className="p-3">{u.name}</td>
-              <td className="p-3">{u.email}</td>
-              <td className="p-3">{u.role}</td>
-              <td className="p-3">
-                {new Date(u.createdAt).toLocaleDateString()}
-              </td>
-              <td className="p-3 text-center flex justify-center gap-3">
-                <button
-                  onClick={() => handleEditUser(u)}
-                  className="opacity-0 group-hover:opacity-100 transition text-blue-600 hover:text-blue-800"
-                  title="Edit User"
-                >
-                  <Edit3 size={22} />
-                </button>
-                <button
-                  onClick={() => handleDeleteUser(u.id)}
-                  className="opacity-0 group-hover:opacity-100 transition text-red-600 hover:text-red-800"
-                  title="Delete User"
-                >
-                  <Trash2 size={22} />
-                </button>
-              </td>
-            </tr>
-          ))
-        )}
-      </tbody>
-    </table>
-  </div>
+            {/* Table */}
+            <UserTable
+              users={users}
+              handleEditUser={handleEditUser}
+              handleDeleteUser={handleDeleteUser}
+            />
 
-  {/* Add/Edit User Form */}
-  {showForm && (
-    <form
-      onSubmit={handleUserSubmit}
-      className="bg-white border border-orange-200 shadow-md rounded-xl p-6 max-w-lg animate-fadeIn"
-    >
-      <h2 className="text-lg font-semibold mb-4 text-orange-600">
-        {editUserMode ? "Edit User" : "Add New User"}
-      </h2>
-
-      <div className="mb-3">
-        <label className="block text-sm font-medium mb-1">Name</label>
-        <input
-          type="text"
-          value={userName}
-          onChange={(e) => setUserName(e.target.value)}
-          className="w-full border border-neutral-300 rounded-md px-3 py-2"
-          placeholder="Full name"
-        />
-      </div>
-
-      <div className="mb-3">
-        <label className="block text-sm font-medium mb-1">Email</label>
-        <input
-          type="email"
-          value={userEmail}
-          onChange={(e) => setUserEmail(e.target.value)}
-          className="w-full border border-neutral-300 rounded-md px-3 py-2"
-          placeholder="user@example.com"
-        />
-      </div>
-
-      <div className="mb-3">
-        <label className="block text-sm font-medium mb-1">Password</label>
-        <input
-          type="password"
-          value={userPassword}
-          onChange={(e) => setUserPassword(e.target.value)}
-          className="w-full border border-neutral-300 rounded-md px-3 py-2"
-          placeholder="********"
-        />
-      </div>
-
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1">Role</label>
-        <select
-          value={userRole}
-          onChange={(e) => setUserRole(e.target.value)}
-          className="w-full border border-neutral-300 rounded-md px-3 py-2"
-        >
-          <option value="customer">Customer</option>
-          <option value="admin">Admin</option>
-        </select>
-      </div>
-
-      <button
-        type="submit"
-        className="w-full bg-orange-600 text-white py-2 rounded-md font-semibold hover:bg-orange-700 transition"
-      >
-        {editUserMode ? "Update User" : "Add User"}
-      </button>
-    </form>
-  )}
-</>
+            {/* Form */}
+            {showForm && (
+              <UserForm
+                editUserMode={editUserMode}
+                userName={userName}
+                userEmail={userEmail}
+                userPassword={userPassword}
+                userRole={userRole}
+                setUserName={setUserName}
+                setUserEmail={setUserEmail}
+                setUserPassword={setUserPassword}
+                setUserRole={setUserRole}
+                handleUserSubmit={handleUserSubmit}
+              />
+            )}
+          </>
         )}
       </main>
     </div>
