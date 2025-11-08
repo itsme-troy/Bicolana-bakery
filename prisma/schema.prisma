@@ -7,6 +7,25 @@ generator client {
   provider = "prisma-client-js"
 }
 
+/*
+🧍 User → can have many Orders
+🧾 Order → belongs to one User
+🧺 Order → can include many Products
+🍞 Product → can belong to many Orders
+OrderProduct → join table to store which products belong to which orders and their quantity
+*/
+
+// 🧩 Enum for order status
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+
 model User {
   id        Int      @id @default(autoincrement())
   name      String
@@ -14,6 +33,9 @@ model User {
   password  String
   role      String   @default("customer") // or "admin"
   createdAt DateTime @default(now())
+  
+  // 👇 Relation: 1 User has many Orders
+  orders    Order[]
 }
 
 model Product {
@@ -23,4 +45,35 @@ model Product {
   price       Float
   image       String?   // optional: store image URLs
   createdAt   DateTime  @default(now())
+
+  // 👇 Relation: A Product can belong to many Orders
+  orders      OrderProduct[]
+}
+
+model Order {
+  id           Int          @id @default(autoincrement())
+  customerName String
+  totalPrice   Float
+  status       OrderStatus  @default(PENDING) // default
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  // 👇 Relation: many Orders → one User
+  userId Int
+  user   User         @relation(fields: [userId], references: [id])
+
+  // 👇 Relation: many Orders → many Products
+  orderProducts OrderProduct[]
+}
+
+model OrderProduct {
+  // 👇 Join table for M:N relationship between Orders and Products
+  orderId   Int
+  productId Int
+  quantity  Int        @default(1)
+
+  order     Order      @relation(fields: [orderId], references: [id])
+  product   Product    @relation(fields: [productId], references: [id])
+
+  @@id([orderId, productId]) // Composite primary key
 }
