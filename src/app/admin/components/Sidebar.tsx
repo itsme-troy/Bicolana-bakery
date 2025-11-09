@@ -1,37 +1,40 @@
-"use client";
+// Sidebar.tsx
 
-interface SidebarProps {
-  activeTab: "products" | "users";
-  setActiveTab: (tab: "products" | "users") => void;
-}
-
-export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
+export default function Sidebar({ activeTab, setActiveTab }: any) {
   return (
-    <aside className="w-64 bg-neutral-900 text-white p-5 flex flex-col justify-between">
-      <div>
-        <h1 className="text-2xl font-bold mb-8 text-orange-500">Admin Panel</h1>
-        <nav className="space-y-3">
-          <button
+    <aside className="w-64 bg-neutral-900 text-white flex flex-col">
+      <h2 className="text-2xl font-bold p-6">Admin Panel</h2>
+
+      <nav className="flex-1">
+        <ul>
+          <li
             onClick={() => setActiveTab("products")}
-            className={`block w-full text-left px-4 py-2 rounded-md transition ${
+            className={`cursor-pointer px-6 py-3 ${
               activeTab === "products"
                 ? "bg-orange-600"
                 : "hover:bg-neutral-800"
             }`}
           >
-            📦 Products
-          </button>
-          <button
+            🧁 Products
+          </li>
+          <li
             onClick={() => setActiveTab("users")}
-            className={`block w-full text-left px-4 py-2 rounded-md transition ${
+            className={`cursor-pointer px-6 py-3 ${
               activeTab === "users" ? "bg-orange-600" : "hover:bg-neutral-800"
             }`}
           >
             👤 Users
-          </button>
-        </nav>
-      </div>
-      <p className="text-xs text-neutral-400 mt-10">© 2025 Bicolana’s Bakery</p>
+          </li>
+          <li
+            onClick={() => setActiveTab("orders")}
+            className={`cursor-pointer px-6 py-3 ${
+              activeTab === "orders" ? "bg-orange-600" : "hover:bg-neutral-800"
+            }`}
+          >
+            📦 Orders
+          </li>
+        </ul>
+      </nav>
     </aside>
   );
 }

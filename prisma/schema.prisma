@@ -39,32 +39,29 @@ model User {
 }
 
 model Product {
-  id          Int      @id @default(autoincrement())
+  id          Int        @id @default(autoincrement())
   name        String
   description String?
   price       Float
-  image       String?   // optional: store image URLs
-  createdAt   DateTime  @default(now())
+  image       String?
 
-  // 👇 Relation: A Product can belong to many Orders
-  orders      OrderProduct[]
+// 👇 Relation: A Product can belong to many Orders
+  orders      Order[]
 }
 
 model Order {
-  id           Int          @id @default(autoincrement())
-  customerName String
-  totalPrice   Float
-  status       OrderStatus  @default(PENDING) // default
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  id         Int        @id @default(autoincrement())
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  status     String     @default("pending")
+  total      Float
+  user       User?      @relation(fields: [userId], references: [id])
+  userId     Int?
 
-  // 👇 Relation: many Orders → one User
-  userId Int
-  user   User         @relation(fields: [userId], references: [id])
-
-  // 👇 Relation: many Orders → many Products
-  orderProducts OrderProduct[]
+  // ✅ Many-to-many (auto)
+  products   Product[]
 }
+
 
 model OrderProduct {
   // 👇 Join table for M:N relationship between Orders and Products

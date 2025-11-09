@@ -8,6 +8,7 @@ import ProductTable from "./components/ProductTable";
 import ProductForm from "./components/ProductForm";
 import UserTable from "./components/UserTable";
 import UserForm from "./components/UserForm";
+import OrderTable from "./components/OrderTable";
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<"products" | "users">("products");
@@ -34,10 +35,15 @@ export default function AdminPage() {
   const [userPassword, setUserPassword] = useState("");
   const [userRole, setUserRole] = useState("customer");
 
+  // ORDER STATES
+  const [orders, setOrders] = useState([]);
+  const [loadingOrders, setLoadingOrders] = useState(false);
+
   // 🔄 Fetch data on load
   useEffect(() => {
     fetchProducts();
     fetchUsers();
+    fetchOrders();
   }, []);
 
   // 📦 PRODUCTS ---------------------------------------------------
@@ -48,6 +54,19 @@ export default function AdminPage() {
       setProducts(data);
     } catch (error) {
       console.error("Error fetching products:", error);
+    }
+  };
+
+  const fetchOrders = async () => {
+    try {
+      setLoadingOrders(true);
+      const res = await fetch("/api/orders");
+      const data = await res.json();
+      setOrders(data);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    } finally {
+      setLoadingOrders(false);
     }
   };
 
