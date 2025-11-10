@@ -7,13 +7,13 @@ generator client {
   provider = "prisma-client-js"
 }
 
-/*
-🧍 User → can have many Orders
-🧾 Order → belongs to one User
-🧺 Order → can include many Products
-🍞 Product → can belong to many Orders
-OrderProduct → join table to store which products belong to which orders and their quantity
-*/
+/**
+ * 🧍 User → can have many Orders
+ * 🧾 Order → belongs to one User
+ * 🧺 Order → can include many Products
+ * 🍞 Product → can belong to many Orders
+ * OrderProduct → join table to store which products belong to which orders and their quantity
+ */
 
 // 🧩 Enum for order status
 enum OrderStatus {
@@ -25,7 +25,6 @@ enum OrderStatus {
   CANCELLED
 }
 
-
 model User {
   id        Int      @id @default(autoincrement())
   name      String
@@ -33,44 +32,45 @@ model User {
   password  String
   role      String   @default("customer") // or "admin"
   createdAt DateTime @default(now())
-  
+
   // 👇 Relation: 1 User has many Orders
-  orders    Order[]
+  orders Order[]
 }
 
 model Product {
-  id          Int        @id @default(autoincrement())
+  id          Int     @id @default(autoincrement())
   name        String
   description String?
   price       Float
   image       String?
 
-// 👇 Relation: A Product can belong to many Orders
-  orders      Order[]
+  // 👇 Relation: A Product can belong to many Orders (through OrderProduct)
+  orderProducts OrderProduct[]
 }
 
 model Order {
-  id         Int        @id @default(autoincrement())
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-  status     String     @default("pending")
-  total      Float
-  user       User?      @relation(fields: [userId], references: [id])
-  userId     Int?
+  id        Int         @id @default(autoincrement())
+  status    OrderStatus @default(PENDING)
+  createdAt DateTime    @default(now())
 
-  // ✅ Many-to-many (auto)
-  products   Product[]
+  // 👇 Relation: Each Order belongs to one User
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  // 👇 Relation: Each Order can include many Products (through OrderProduct)
+  orderProducts OrderProduct[]
 }
 
-
+// 🧩 Join table between Order and Product
 model OrderProduct {
-  // 👇 Join table for M:N relationship between Orders and Products
+  id        Int @id @default(autoincrement())
   orderId   Int
   productId Int
-  quantity  Int        @default(1)
+  quantity  Int @default(1)
 
-  order     Order      @relation(fields: [orderId], references: [id])
-  product   Product    @relation(fields: [productId], references: [id])
+  // Relations
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
 
-  @@id([orderId, productId]) // Composite primary key
+  @@unique([orderId, productId]) // Prevent duplicate product entries per order
 }

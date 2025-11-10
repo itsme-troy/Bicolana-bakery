@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-// 🧩 Import modular components
+// 🧩 Modular components
 import Sidebar from "./components/Sidebar";
 import ProductTable from "./components/ProductTable";
 import ProductForm from "./components/ProductForm";
@@ -11,13 +11,16 @@ import UserForm from "./components/UserForm";
 import OrderTable from "./components/OrderTable";
 
 export default function AdminPage() {
-  const [activeTab, setActiveTab] = useState<"products" | "users">("products");
+  // 🧭 Add "orders" to the allowed tab options
+  const [activeTab, setActiveTab] = useState<"products" | "users" | "orders">(
+    "products"
+  );
 
   // Shared UI states
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // PRODUCT STATES
+  // 📦 PRODUCT STATES
   const [products, setProducts] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
@@ -26,7 +29,7 @@ export default function AdminPage() {
   const [price, setPrice] = useState("");
   const [image, setImage] = useState("");
 
-  // USER STATES
+  // 👤 USER STATES
   const [users, setUsers] = useState([]);
   const [editUserMode, setEditUserMode] = useState(false);
   const [editUserId, setEditUserId] = useState<number | null>(null);
@@ -35,18 +38,20 @@ export default function AdminPage() {
   const [userPassword, setUserPassword] = useState("");
   const [userRole, setUserRole] = useState("customer");
 
-  // ORDER STATES
+  // 📦 ORDER STATES
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
 
-  // 🔄 Fetch data on load
+  // 🔄 Fetch data on mount
   useEffect(() => {
     fetchProducts();
     fetchUsers();
     fetchOrders();
   }, []);
 
-  // 📦 PRODUCTS ---------------------------------------------------
+  // ------------------------------
+  // 🧁 PRODUCTS
+  // ------------------------------
   const fetchProducts = async () => {
     try {
       const res = await fetch("/api/products");
@@ -54,19 +59,6 @@ export default function AdminPage() {
       setProducts(data);
     } catch (error) {
       console.error("Error fetching products:", error);
-    }
-  };
-
-  const fetchOrders = async () => {
-    try {
-      setLoadingOrders(true);
-      const res = await fetch("/api/orders");
-      const data = await res.json();
-      setOrders(data);
-    } catch (error) {
-      console.error("Error fetching orders:", error);
-    } finally {
-      setLoadingOrders(false);
     }
   };
 
@@ -87,7 +79,6 @@ export default function AdminPage() {
 
       if (!res.ok) throw new Error("Failed to save product");
 
-      // Reset form and refresh data
       setName("");
       setDescription("");
       setPrice("");
@@ -126,7 +117,9 @@ export default function AdminPage() {
     }
   };
 
-  // 👥 USERS ------------------------------------------------------
+  // ------------------------------
+  // 👥 USERS
+  // ------------------------------
   const fetchUsers = async () => {
     try {
       const res = await fetch("/api/users");
@@ -159,7 +152,6 @@ export default function AdminPage() {
 
       if (!res.ok) throw new Error("Error saving user");
 
-      // Reset form
       setUserName("");
       setUserEmail("");
       setUserPassword("");
@@ -195,7 +187,25 @@ export default function AdminPage() {
     }
   };
 
-  // 🧩 UI ---------------------------------------------------------
+  // ------------------------------
+  // 📦 ORDERS
+  // ------------------------------
+  const fetchOrders = async () => {
+    try {
+      setLoadingOrders(true);
+      const res = await fetch("/api/orders");
+      const data = await res.json();
+      setOrders(data);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    } finally {
+      setLoadingOrders(false);
+    }
+  };
+
+  // ------------------------------
+  // 🧩 UI
+  // ------------------------------
   return (
     <div className="flex min-h-screen bg-gray-100 text-neutral-900">
       {/* Sidebar */}
@@ -205,7 +215,6 @@ export default function AdminPage() {
       <main className="flex-1 p-10">
         {activeTab === "products" ? (
           <>
-            {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-3xl font-bold">Product Management</h1>
               <button
@@ -223,14 +232,12 @@ export default function AdminPage() {
               </button>
             </div>
 
-            {/* Table */}
             <ProductTable
               products={products}
               handleEdit={handleEdit}
               handleDelete={handleDelete}
             />
 
-            {/* Form */}
             {showForm && (
               <ProductForm
                 editMode={editMode}
@@ -247,9 +254,8 @@ export default function AdminPage() {
               />
             )}
           </>
-        ) : (
+        ) : activeTab === "users" ? (
           <>
-            {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-3xl font-bold">User Management</h1>
               <button
@@ -267,14 +273,12 @@ export default function AdminPage() {
               </button>
             </div>
 
-            {/* Table */}
             <UserTable
               users={users}
               handleEditUser={handleEditUser}
               handleDeleteUser={handleDeleteUser}
             />
 
-            {/* Form */}
             {showForm && (
               <UserForm
                 editUserMode={editUserMode}
@@ -288,6 +292,25 @@ export default function AdminPage() {
                 setUserRole={setUserRole}
                 handleUserSubmit={handleUserSubmit}
               />
+            )}
+          </>
+        ) : (
+          <>
+            {/* 📦 ORDER MANAGEMENT */}
+            <div className="flex items-center justify-between mb-6">
+              <h1 className="text-3xl font-bold">Order Management</h1>
+              <button
+                onClick={fetchOrders}
+                className="bg-orange-600 text-white px-4 py-2 rounded-md font-medium hover:bg-orange-700 transition"
+              >
+                🔄 Refresh Orders
+              </button>
+            </div>
+
+            {loadingOrders ? (
+              <p className="text-gray-500">Loading orders...</p>
+            ) : (
+              <OrderTable orders={orders} />
             )}
           </>
         )}
