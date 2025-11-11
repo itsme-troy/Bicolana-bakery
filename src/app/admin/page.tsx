@@ -21,6 +21,7 @@ import ProductForm from "./components/ProductForm";
 import UserTable from "./components/UserTable";
 import UserForm from "./components/UserForm";
 import OrderTable from "./components/OrderTable";
+import OrderForm from "./components/OrderForm";
 
 export default function AdminPage() {
   // 🧭 Add "orders" to the allowed tab options
@@ -361,66 +362,16 @@ export default function AdminPage() {
 
                 {/* ✅ Show form when toggled */}
                 {showForm && (
-                  <form
-                    onSubmit={handleOrderSubmit}
-                    className="bg-white p-6 rounded-md shadow-md mt-6 space-y-4"
-                  >
-                    <h2 className="text-xl font-semibold mb-2">
-                      Create New Order
-                    </h2>
-
-                    {/* Select customer */}
-                    <div>
-                      <label className="block text-sm font-medium mb-1">
-                        Customer
-                      </label>
-                      <select
-                        value={selectedUser}
-                        onChange={(e) => setSelectedUser(e.target.value)}
-                        className="border rounded-md p-2 w-full"
-                      >
-                        <option value="">Select a customer</option>
-                        {users.map((u) => (
-                          <option key={u.id} value={u.id}>
-                            {u.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Select products */}
-                    <div>
-                      <label className="block text-sm font-medium mb-1">
-                        Products
-                      </label>
-                      <select
-                        multiple
-                        value={selectedProducts}
-                        onChange={(e) =>
-                          setSelectedProducts(
-                            Array.from(
-                              e.target.selectedOptions,
-                              (opt) => opt.value
-                            )
-                          )
-                        }
-                        className="border rounded-md p-2 w-full h-32"
-                      >
-                        {products.map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <button
-                      type="submit"
-                      className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition"
-                    >
-                      Save Order
-                    </button>
-                  </form>
+                  <OrderForm
+                    users={users}
+                    products={products}
+                    selectedUser={selectedUser}
+                    selectedProducts={selectedProducts}
+                    setSelectedUser={setSelectedUser}
+                    setSelectedProducts={setSelectedProducts}
+                    handleOrderSubmit={handleOrderSubmit}
+                    loading={loadingOrders}
+                  />
                 )}
               </>
             )}
