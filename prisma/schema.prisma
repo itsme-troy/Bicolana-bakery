@@ -26,51 +26,41 @@ enum OrderStatus {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  password  String
-  role      String   @default("customer") // or "admin"
-  createdAt DateTime @default(now())
-
-  // 👇 Relation: 1 User has many Orders
-  orders Order[]
+  id       Int      @id @default(autoincrement())
+  name     String
+  email    String   @unique
+  password String
+  role     String   @default("customer")
+  createdAt DateTime  @default(now())
+  orders   Order[]
 }
 
+
 model Product {
-  id          Int     @id @default(autoincrement())
+  id          Int           @id @default(autoincrement())
   name        String
   description String?
   price       Float
   image       String?
-
-  // 👇 Relation: A Product can belong to many Orders (through OrderProduct)
-  orderProducts OrderProduct[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  orderItems  OrderProduct[]
 }
 
 model Order {
-  id        Int         @id @default(autoincrement())
-  status    OrderStatus @default(PENDING)
-  createdAt DateTime    @default(now())
-
-  // 👇 Relation: Each Order belongs to one User
-  userId Int
-  user   User @relation(fields: [userId], references: [id])
-
-  // 👇 Relation: Each Order can include many Products (through OrderProduct)
+  id            Int           @id @default(autoincrement())
+  user          User          @relation(fields: [userId], references: [id])
+  userId        Int
   orderProducts OrderProduct[]
+  createdAt     DateTime      @default(now())
 }
+
 
 // 🧩 Join table between Order and Product
 model OrderProduct {
-  id        Int @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
+  order     Order    @relation(fields: [orderId], references: [id])
   orderId   Int
+  product   Product  @relation(fields: [productId], references: [id])
   productId Int
-  quantity  Int @default(1)
-
-  // Relations
-  order   Order   @relation(fields: [orderId], references: [id])
-  product Product @relation(fields: [productId], references: [id])
-
-  @@unique([orderId, productId]) // Prevent duplicate product entries per order
 }

@@ -1,5 +1,17 @@
 "use client";
 
+interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+}
+
 import { useEffect, useState } from "react";
 
 // 🧩 Modular components
@@ -21,7 +33,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
 
   // 📦 PRODUCT STATES
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [editMode, setEditMode] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [name, setName] = useState("");
@@ -30,7 +42,7 @@ export default function AdminPage() {
   const [image, setImage] = useState("");
 
   // 👤 USER STATES
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [editUserMode, setEditUserMode] = useState(false);
   const [editUserId, setEditUserId] = useState<number | null>(null);
   const [userName, setUserName] = useState("");
@@ -39,8 +51,12 @@ export default function AdminPage() {
   const [userRole, setUserRole] = useState("customer");
 
   // 📦 ORDER STATES
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<any[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
+
+  // STATES for order creation
+  const [selectedUser, setSelectedUser] = useState<string>("");
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
 
   // 🔄 Fetch data on mount
   useEffect(() => {
@@ -114,6 +130,28 @@ export default function AdminPage() {
     } catch (error) {
       console.error(error);
       alert("Failed to delete product");
+    }
+  };
+
+  const handleOrderSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedUser || selectedProducts.length === 0)
+      return alert("Select a user and at least one product!");
+
+    const res = await fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: selectedUser,
+        productIds: selectedProducts,
+      }),
+    });
+
+    if (res.ok) {
+      setShowForm(false);
+      fetchOrders();
+    } else {
+      alert("Failed to create order");
     }
   };
 
@@ -299,18 +337,92 @@ export default function AdminPage() {
             {/* 📦 ORDER MANAGEMENT */}
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-3xl font-bold">Order Management</h1>
-              <button
-                onClick={fetchOrders}
-                className="bg-orange-600 text-white px-4 py-2 rounded-md font-medium hover:bg-orange-700 transition"
-              >
-                🔄 Refresh Orders
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowForm(!showForm)}
+                  className="bg-orange-600 text-white px-4 py-2 rounded-md font-medium hover:bg-orange-700 transition"
+                >
+                  {showForm ? "✖ Cancel" : "➕ Create Order"}
+                </button>
+                <button
+                  onClick={fetchOrders}
+                  className="bg-orange-500 text-white px-4 py-2 rounded-md font-medium hover:bg-orange-600 transition"
+                >
+                  🔄 Refresh Orders
+                </button>
+              </div>
             </div>
 
             {loadingOrders ? (
               <p className="text-gray-500">Loading orders...</p>
             ) : (
-              <OrderTable orders={orders} />
+              <>
+                <OrderTable orders={orders} />
+
+                {/* ✅ Show form when toggled */}
+                {showForm && (
+                  <form
+                    onSubmit={handleOrderSubmit}
+                    className="bg-white p-6 rounded-md shadow-md mt-6 space-y-4"
+                  >
+                    <h2 className="text-xl font-semibold mb-2">
+                      Create New Order
+                    </h2>
+
+                    {/* Select customer */}
+                    <div>
+                      <label className="block text-sm font-medium mb-1">
+                        Customer
+                      </label>
+                      <select
+                        value={selectedUser}
+                        onChange={(e) => setSelectedUser(e.target.value)}
+                        className="border rounded-md p-2 w-full"
+                      >
+                        <option value="">Select a customer</option>
+                        {users.map((u) => (
+                          <option key={u.id} value={u.id}>
+                            {u.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Select products */}
+                    <div>
+                      <label className="block text-sm font-medium mb-1">
+                        Products
+                      </label>
+                      <select
+                        multiple
+                        value={selectedProducts}
+                        onChange={(e) =>
+                          setSelectedProducts(
+                            Array.from(
+                              e.target.selectedOptions,
+                              (opt) => opt.value
+                            )
+                          )
+                        }
+                        className="border rounded-md p-2 w-full h-32"
+                      >
+                        {products.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition"
+                    >
+                      Save Order
+                    </button>
+                  </form>
+                )}
+              </>
             )}
           </>
         )}
