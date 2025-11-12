@@ -53,6 +53,7 @@ export default function AdminPage() {
 
   // 📦 ORDER STATES
   const [orders, setOrders] = useState<any[]>([]);
+  const [status, setStatus] = useState("pending");
   const [loadingOrders, setLoadingOrders] = useState(false);
 
   // STATES for order creation
@@ -139,20 +140,50 @@ export default function AdminPage() {
     if (!selectedUser || selectedProducts.length === 0)
       return alert("Select a user and at least one product!");
 
-    const res = await fetch("/api/orders", {
-      method: "POST",
+    const method = editMode ? "PUT" : "POST";
+    const url = editMode ? `/api/orders/${editId}` : "/api/orders";
+
+    const res = await fetch(url, {
+      method,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         userId: selectedUser,
         productIds: selectedProducts,
+        status, // ✅ include order status
       }),
     });
 
     if (res.ok) {
       setShowForm(false);
+      setEditMode(false);
+      setEditId(null);
+      setStatus("pending");
       fetchOrders();
     } else {
-      alert("Failed to create order");
+      alert("Failed to save order");
+    }
+  };
+
+  // ✏️ Edit order
+  const handleEditOrder = (order: any) => {
+    setShowForm(true);
+    setSelectedUser(order.userId.toString());
+    setSelectedProducts(order.products.map((p: any) => p.id.toString()));
+    setStatus(order.status); // ✅ load current status
+    setEditMode(true);
+    setEditId(order.id);
+  };
+
+  // 🗑️ Delete order
+  const handleDeleteOrder = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this order?")) return;
+    try {
+      const res = await fetch(`/api/orders/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete order");
+      fetchOrders();
+    } catch (error) {
+      console.error(error);
+      alert("Failed to delete order");
     }
   };
 
@@ -233,10 +264,26 @@ export default function AdminPage() {
     try {
       setLoadingOrders(true);
       const res = await fetch("/api/orders");
+
+      // Handle non-OK responses
+      if (!res.ok) {
+        console.error("Error fetching orders:", await res.text());
+        setOrders([]);
+        return;
+      }
+
       const data = await res.json();
-      setOrders(data);
+
+      // ✅ Ensure data is always an array
+      if (Array.isArray(data)) {
+        setOrders(data);
+      } else {
+        console.error("Unexpected orders response:", data);
+        setOrders([]);
+      }
     } catch (error) {
       console.error("Error fetching orders:", error);
+      setOrders([]);
     } finally {
       setLoadingOrders(false);
     }
@@ -358,7 +405,11 @@ export default function AdminPage() {
               <p className="text-gray-500">Loading orders...</p>
             ) : (
               <>
-                <OrderTable orders={orders} />
+                <OrderTable
+                  orders={orders}
+                  handleEditOrder={handleEditOrder}
+                  handleDeleteOrder={handleDeleteOrder}
+                />
 
                 {/* ✅ Show form when toggled */}
                 {showForm && (
@@ -367,10 +418,13 @@ export default function AdminPage() {
                     products={products}
                     selectedUser={selectedUser}
                     selectedProducts={selectedProducts}
+                    status={status}
                     setSelectedUser={setSelectedUser}
                     setSelectedProducts={setSelectedProducts}
+                    setStatus={setStatus}
                     handleOrderSubmit={handleOrderSubmit}
                     loading={loadingOrders}
+                    editMode={editMode}
                   />
                 )}
               </>

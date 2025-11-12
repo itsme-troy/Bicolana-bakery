@@ -1,41 +1,30 @@
 // // GET /api/orders/:id
 // // PUT /api/orders/:id
 // // DELETE /api/orders/:id
-
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-export async function POST(req: Request) {
+// ✅ DELETE order (Next.js 15+ syntax)
+export async function DELETE(req: Request, context: { params: Promise<{ id: string }> }) {
+  // ⬇️ Await the params before using them
+  const { id } = await context.params;
+
   try {
-    const { userId, productIds } = await req.json();
-
-    if (!userId || !productIds || productIds.length === 0) {
-      return NextResponse.json(
-        { error: "User ID and product IDs are required" },
-        { status: 400 }
-      );
-    }
-
-    const order = await prisma.order.create({
-      data: {
-        userId: parseInt(userId),
-        orderProducts: {
-          create: productIds.map((pid: string) => ({
-            productId: parseInt(pid),
-          })),
-        },
-      },
-      include: {
-        user: true,
-        orderProducts: { include: { product: true } },
-      },
+    // Delete related orderProducts first
+    await prisma.orderProduct.deleteMany({
+      where: { orderId: parseInt(id) },
     });
 
-    return NextResponse.json(order);
+    // Then delete the order itself
+    await prisma.order.delete({
+      where: { id: parseInt(id) },
+    });
+
+    return NextResponse.json({ message: "Order deleted successfully." });
   } catch (error) {
-    console.error("Error creating order:", error);
+    console.error("Error deleting order:", error);
     return NextResponse.json(
-      { error: "Failed to create order" },
+      { error: "Failed to delete order" },
       { status: 500 }
     );
   }

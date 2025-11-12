@@ -5,10 +5,13 @@ interface OrderFormProps {
   products: any[];
   selectedUser: string;
   selectedProducts: string[];
+  status: string;
   setSelectedUser: (val: string) => void;
   setSelectedProducts: (val: string[]) => void;
+  setStatus: (val: string) => void;
   handleOrderSubmit: (e: React.FormEvent) => void;
   loading?: boolean;
+  editMode?: boolean;
 }
 
 export default function OrderForm({
@@ -16,10 +19,13 @@ export default function OrderForm({
   products,
   selectedUser,
   selectedProducts,
+  status,
   setSelectedUser,
   setSelectedProducts,
+  setStatus,
   handleOrderSubmit,
   loading = false,
+  editMode = false,
 }: OrderFormProps) {
   return (
     <form
@@ -27,7 +33,7 @@ export default function OrderForm({
       className="bg-white border border-orange-200 shadow-md rounded-xl p-6 max-w-lg animate-fadeIn"
     >
       <h2 className="text-lg font-semibold mb-4 text-orange-600">
-        Create New Order
+        {editMode ? "Edit Order" : "Create New Order"}
       </h2>
 
       {/* Select Customer */}
@@ -71,13 +77,26 @@ export default function OrderForm({
         </p>
       </div>
 
-      {/* Submit */}
+      {/* ✅ Status Dropdown */}
+      <div className="mb-4">
+        <label className="block text-sm font-medium mb-1">Order Status</label>
+        <select
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          className="w-full border border-neutral-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-orange-500"
+        >
+          <option value="pending">Pending</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+
       <button
         type="submit"
         disabled={loading}
         className="w-full bg-green-600 text-white py-2 rounded-md font-semibold hover:bg-green-700 transition disabled:opacity-60"
       >
-        {loading ? "Saving Order..." : "Save Order"}
+        {loading ? "Saving..." : editMode ? "Update Order" : "Save Order"}
       </button>
     </form>
   );
