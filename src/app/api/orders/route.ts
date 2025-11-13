@@ -63,6 +63,7 @@ export async function GET() {
     // ✅ Format for frontend
     const formatted = orders.map((o) => ({
       id: o.id,
+      userId: o.userId,   
       user: o.user,
       products: o.orderProducts.map((op) => ({
         id: op.product.id,

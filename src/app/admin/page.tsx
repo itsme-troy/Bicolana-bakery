@@ -55,6 +55,7 @@ export default function AdminPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [status, setStatus] = useState("pending");
   const [loadingOrders, setLoadingOrders] = useState(false);
+  const [statusFilter, setStatusFilter] = useState("all");
 
   // STATES for order creation
   const [selectedUser, setSelectedUser] = useState<string>("");
@@ -289,6 +290,12 @@ export default function AdminPage() {
     }
   };
 
+  // Filter orders based on selected status
+  const filteredOrders = orders.filter((order: any) => {
+    if (statusFilter === "all") return true;
+    return order.status.toLowerCase() === statusFilter;
+  });
+
   // ------------------------------
   // 🧩 UI
   // ------------------------------
@@ -405,8 +412,29 @@ export default function AdminPage() {
               <p className="text-gray-500">Loading orders...</p>
             ) : (
               <>
+                {/* STATUS FILTER BUTTONS */}
+                <div className="flex gap-3 mb-4">
+                  {["all", "pending", "completed", "cancelled"].map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => setStatusFilter(s)}
+                      className={`
+        px-4 py-2 rounded-full border text-sm capitalize
+        ${
+          statusFilter === s
+            ? "bg-orange-500 text-white"
+            : "bg-white hover:bg-gray-100"
+        }
+      `}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+
+                {/* FILTERED ORDER TABLE */}
                 <OrderTable
-                  orders={orders}
+                  orders={filteredOrders}
                   handleEditOrder={handleEditOrder}
                   handleDeleteOrder={handleDeleteOrder}
                 />
