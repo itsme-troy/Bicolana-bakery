@@ -24,6 +24,7 @@ import UserTable from "./components/UserTable";
 import UserForm from "./components/UserForm";
 import OrderTable from "./components/OrderTable";
 import OrderForm from "./components/OrderForm";
+import Drawer from "./components/Drawer";
 
 export default function AdminPage() {
   // 🧭 Add "orders" to the allowed tab options
@@ -319,6 +320,7 @@ export default function AdminPage() {
 
     return (
       order.id.toString().includes(q) ||
+      `#${order.id}`.toLowerCase().includes(q) ||
       order.user?.name?.toLowerCase().includes(q) ||
       order.products.some((p) => p.name.toLowerCase().includes(q))
     );
@@ -369,20 +371,27 @@ export default function AdminPage() {
               handleDelete={handleDelete}
             />
 
+            {/* Drawer for ProductForm */}
             {showForm && (
-              <ProductForm
-                editMode={editMode}
-                name={name}
-                description={description}
-                price={price}
-                image={image}
-                loading={loading}
-                setName={setName}
-                setDescription={setDescription}
-                setPrice={setPrice}
-                setImage={setImage}
-                handleSubmit={handleSubmit}
-              />
+              <Drawer
+                onClose={() => setShowForm(false)}
+                width="max-w-lg"
+                title={editMode ? "Edit Product" : "Add New Product"}
+              >
+                <ProductForm
+                  editMode={editMode}
+                  name={name}
+                  description={description}
+                  price={price}
+                  image={image}
+                  loading={loading}
+                  setName={setName}
+                  setDescription={setDescription}
+                  setPrice={setPrice}
+                  setImage={setImage}
+                  handleSubmit={handleSubmit}
+                />
+              </Drawer>
             )}
           </>
         ) : activeTab === "users" ? (
@@ -420,19 +429,25 @@ export default function AdminPage() {
               handleDeleteUser={handleDeleteUser}
             />
 
+            {/* Drawer for UserForm */}
             {showForm && (
-              <UserForm
-                editUserMode={editUserMode}
-                userName={userName}
-                userEmail={userEmail}
-                userPassword={userPassword}
-                userRole={userRole}
-                setUserName={setUserName}
-                setUserEmail={setUserEmail}
-                setUserPassword={setUserPassword}
-                setUserRole={setUserRole}
-                handleUserSubmit={handleUserSubmit}
-              />
+              <Drawer
+                onClose={() => setShowForm(false)}
+                title={editUserMode ? "Edit User" : "Create User"}
+              >
+                <UserForm
+                  editUserMode={editUserMode}
+                  userName={userName}
+                  userEmail={userEmail}
+                  userPassword={userPassword}
+                  userRole={userRole}
+                  setUserName={setUserName}
+                  setUserEmail={setUserEmail}
+                  setUserPassword={setUserPassword}
+                  setUserRole={setUserRole}
+                  handleUserSubmit={handleUserSubmit}
+                />
+              </Drawer>
             )}
           </>
         ) : (
@@ -497,21 +512,27 @@ export default function AdminPage() {
                   handleDeleteOrder={handleDeleteOrder}
                 />
 
-                {/* ✅ Show form when toggled */}
+                {/* Drawer for OrderForm */}
                 {showForm && (
-                  <OrderForm
-                    users={users}
-                    products={products}
-                    selectedUser={selectedUser}
-                    selectedProducts={selectedProducts}
-                    status={status}
-                    setSelectedUser={setSelectedUser}
-                    setSelectedProducts={setSelectedProducts}
-                    setStatus={setStatus}
-                    handleOrderSubmit={handleOrderSubmit}
-                    loading={loadingOrders}
-                    editMode={editMode}
-                  />
+                  <Drawer
+                    onClose={() => setShowForm(false)}
+                    width="max-w-2xl"
+                    title={editMode ? "Edit Order" : "Create Order"}
+                  >
+                    <OrderForm
+                      users={users}
+                      products={products}
+                      selectedUser={selectedUser}
+                      selectedProducts={selectedProducts}
+                      status={status}
+                      setSelectedUser={setSelectedUser}
+                      setSelectedProducts={setSelectedProducts}
+                      setStatus={setStatus}
+                      handleOrderSubmit={handleOrderSubmit}
+                      loading={loadingOrders}
+                      editMode={editMode}
+                    />
+                  </Drawer>
                 )}
               </>
             )}

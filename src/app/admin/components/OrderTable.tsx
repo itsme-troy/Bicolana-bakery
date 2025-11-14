@@ -19,6 +19,7 @@ export default function OrderTable({
         <thead className="bg-orange-100 text-left text-sm">
           <tr>
             <th className="py-3 px-4">#</th>
+            <th className="py-3 px-4">Order ID</th>
             <th className="py-3 px-4">Customer</th>
             <th className="py-3 px-4">Products</th>
             <th className="py-3 px-4">Total</th>
@@ -43,6 +44,11 @@ export default function OrderTable({
                 <td className="py-3 px-4 text-neutral-500 font-semibold">
                   {index + 1}
                 </td>
+                {/* ORDER ID COLUMN */}
+                <td className="py-3 px-4 font-medium text-gray-800">
+                  #{order.id}
+                </td>
+
                 <td className="py-3 px-4">{order.user?.name || "Guest"}</td>
                 <td className="py-3 px-4">
                   {order.products.map((p: any) => p.name).join(", ")}
