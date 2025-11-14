@@ -10,6 +10,8 @@ interface Product {
   id: number;
   name: string;
   price: number;
+  description?: string;
+  image?: string;
 }
 
 import { useEffect, useState } from "react";
@@ -60,6 +62,9 @@ export default function AdminPage() {
   // STATES for order creation
   const [selectedUser, setSelectedUser] = useState<string>("");
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+
+  // SEARCH QUERY STATE
+  const [searchQuery, setSearchQuery] = useState("");
 
   // 🔄 Fetch data on mount
   useEffect(() => {
@@ -290,10 +295,33 @@ export default function AdminPage() {
     }
   };
 
-  // Filter orders based on selected status
-  const filteredOrders = orders.filter((order: any) => {
+  const filteredProducts = products.filter(
+    (p) =>
+      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredUsers = users.filter(
+    (u) =>
+      u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      u.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Filter by status
+  const filteredOrders = orders.filter((order) => {
     if (statusFilter === "all") return true;
     return order.status.toLowerCase() === statusFilter;
+  });
+
+  // Filter by search (AFTER status filter)
+  const searchedOrders = filteredOrders.filter((order) => {
+    const q = searchQuery.toLowerCase();
+
+    return (
+      order.id.toString().includes(q) ||
+      order.user?.name?.toLowerCase().includes(q) ||
+      order.products.some((p) => p.name.toLowerCase().includes(q))
+    );
   });
 
   // ------------------------------
@@ -310,6 +338,16 @@ export default function AdminPage() {
           <>
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-3xl font-bold">Product Management</h1>
+
+              {/* GLOBAL SEARCH BAR */}
+              <input
+                type="text"
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="px-4 py-2 w-64 border border-gray-300 rounded-full shadow-sm focus:ring-2 focus:ring-orange-400 outline-none"
+              />
+
               <button
                 onClick={() => {
                   setShowForm(!showForm);
@@ -326,7 +364,7 @@ export default function AdminPage() {
             </div>
 
             <ProductTable
-              products={products}
+              products={filteredProducts}
               handleEdit={handleEdit}
               handleDelete={handleDelete}
             />
@@ -351,6 +389,16 @@ export default function AdminPage() {
           <>
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-3xl font-bold">User Management</h1>
+
+              {/* GLOBAL SEARCH BAR */}
+              <input
+                type="text"
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="px-4 py-2 w-64 border border-gray-300 rounded-full shadow-sm focus:ring-2 focus:ring-orange-400 outline-none"
+              />
+
               <button
                 onClick={() => {
                   setShowForm(!showForm);
@@ -367,7 +415,7 @@ export default function AdminPage() {
             </div>
 
             <UserTable
-              users={users}
+              users={filteredUsers}
               handleEditUser={handleEditUser}
               handleDeleteUser={handleDeleteUser}
             />
@@ -392,6 +440,16 @@ export default function AdminPage() {
             {/* 📦 ORDER MANAGEMENT */}
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-3xl font-bold">Order Management</h1>
+
+              {/* GLOBAL SEARCH BAR */}
+              <input
+                type="text"
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="px-4 py-2 w-64 border border-gray-300 rounded-full shadow-sm focus:ring-2 focus:ring-orange-400 outline-none"
+              />
+
               <div className="flex gap-2">
                 <button
                   onClick={() => setShowForm(!showForm)}
@@ -434,7 +492,7 @@ export default function AdminPage() {
 
                 {/* FILTERED ORDER TABLE */}
                 <OrderTable
-                  orders={filteredOrders}
+                  orders={searchedOrders}
                   handleEditOrder={handleEditOrder}
                   handleDeleteOrder={handleDeleteOrder}
                 />
