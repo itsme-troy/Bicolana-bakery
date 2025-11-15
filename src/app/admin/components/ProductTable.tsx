@@ -20,6 +20,7 @@ export default function ProductTable({
           <tr className="bg-orange-100 text-left text-sm">
             <th className="p-3">#</th>
             <th className="p-3">Name</th>
+            <th className="px-4 py-3 text-left">Category</th>
             <th className="p-3">Price</th>
             <th className="p-3">Description</th>
             <th className="p-3 text-center w-32">Actions</th>
@@ -40,6 +41,7 @@ export default function ProductTable({
               >
                 <td className="p-3 text-neutral-500 font-semibold">{i + 1}</td>
                 <td className="p-3 font-medium">{p.name}</td>
+                <td className="px-4 py-3">{p.category?.name || "—"}</td>
                 <td className="p-3 text-orange-600">₱{p.price}</td>
                 <td className="p-3">{p.description || "No description"}</td>
                 <td className="p-3 text-center flex justify-center gap-3">

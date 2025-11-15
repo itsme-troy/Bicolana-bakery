@@ -6,11 +6,17 @@ interface ProductFormProps {
   description: string;
   price: string;
   image: string;
+  categoryId: string; // ✅ ADD
   loading: boolean;
+
   setName: (val: string) => void;
   setDescription: (val: string) => void;
   setPrice: (val: string) => void;
   setImage: (val: string) => void;
+
+  setCategoryId: (val: string) => void; // ✅ ADD
+  categories: { id: number; name: string }[]; // ✅ ADD
+
   handleSubmit: (e: React.FormEvent) => void;
 }
 
@@ -20,11 +26,14 @@ export default function ProductForm({
   description,
   price,
   image,
-  loading,
+  categoryId,
   setName,
   setDescription,
   setPrice,
   setImage,
+  setCategoryId,
+  categories,
+  loading,
   handleSubmit,
 }: ProductFormProps) {
   return (
@@ -53,6 +62,22 @@ export default function ProductForm({
           onChange={(e) => setDescription(e.target.value)}
           className="w-full border border-neutral-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-orange-500"
         />
+      </div>
+
+      <div className="mb-3">
+        <label className="block text-sm font-medium mb-1">Category</label>
+        <select
+          value={categoryId}
+          onChange={(e) => setCategoryId(e.target.value)}
+          className="w-full border border-neutral-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-orange-500"
+        >
+          <option value="">Select Category</option>
+          {categories.map((cat) => (
+            <option key={cat.id} value={cat.id}>
+              {cat.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="mb-3">

@@ -5,15 +5,15 @@ interface User {
   name: string;
   email: string;
 }
-
 interface Product {
   id: number;
   name: string;
-  price: number;
   description?: string;
+  price: number;
   image?: string;
+  categoryId: number;
+  category?: { id: number; name: string };
 }
-
 import { useEffect, useState } from "react";
 
 // 🧩 Modular components
@@ -67,12 +67,27 @@ export default function AdminPage() {
   // SEARCH QUERY STATE
   const [searchQuery, setSearchQuery] = useState("");
 
+  // CATEGORY STATES
+  const [categories, setCategories] = useState([]);
+  const [categoryId, setCategoryId] = useState("");
+
   // 🔄 Fetch data on mount
   useEffect(() => {
+    fetchCategories();
     fetchProducts();
     fetchUsers();
     fetchOrders();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch("/api/categories");
+      const data = await res.json();
+      setCategories(data);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
 
   // ------------------------------
   // 🧁 PRODUCTS
@@ -80,13 +95,21 @@ export default function AdminPage() {
   const fetchProducts = async () => {
     try {
       const res = await fetch("/api/products");
+      if (!res.ok) throw new Error("Failed to fetch");
+
       const data = await res.json();
-      setProducts(data);
-    } catch (error) {
-      console.error("Error fetching products:", error);
+
+      if (Array.isArray(data)) {
+        setProducts(data);
+      } else {
+        console.error("Products API returned non-array:", data);
+        setProducts([]); // fallback
+      }
+    } catch (err) {
+      console.error(err);
+      setProducts([]);
     }
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !price) return alert("Name and price are required!");
@@ -99,7 +122,7 @@ export default function AdminPage() {
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, description, price, image }),
+        body: JSON.stringify({ name, description, price, image, categoryId }),
       });
 
       if (!res.ok) throw new Error("Failed to save product");
@@ -128,6 +151,7 @@ export default function AdminPage() {
     setPrice(product.price);
     setImage(product.image || "");
     setShowForm(true);
+    setCategoryId(product.categoryId.toString());
   };
 
   const handleDelete = async (id: number) => {
@@ -384,11 +408,14 @@ export default function AdminPage() {
                   description={description}
                   price={price}
                   image={image}
-                  loading={loading}
+                  categoryId={categoryId}
                   setName={setName}
                   setDescription={setDescription}
                   setPrice={setPrice}
                   setImage={setImage}
+                  setCategoryId={setCategoryId}
+                  categories={categories}
+                  loading={loading}
                   handleSubmit={handleSubmit}
                 />
               </Drawer>

@@ -27,26 +27,28 @@ export async function DELETE(
   }
 }
 
-export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  const id = parseInt(params.id);
-  const body = await request.json();
-
+export async function PUT(req: Request, { params }: any) {
   try {
+    const { id } = params;
+    const data = await req.json();
+
     const updated = await prisma.product.update({
-      where: { id },
+      where: { id: Number(id) },
       data: {
-        name: body.name,
-        description: body.description,
-        price: parseFloat(body.price),
-        image: body.image,
+        name: data.name,
+        description: data.description,
+        price: parseFloat(data.price),
+        image: data.image,
+        categoryId: Number(data.categoryId), // 👈 required
       },
     });
 
     return NextResponse.json(updated);
   } catch (error) {
-    return NextResponse.json({ error: "Failed to update" }, { status: 500 });
+    console.error("Error updating product:", error);
+    return NextResponse.json(
+      { error: "Failed to update product" },
+      { status: 500 }
+    );
   }
 }

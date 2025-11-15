@@ -1,6 +1,7 @@
 {
   "name": "bicolana-bakery",
   "version": "0.1.0",
+  "type": "module",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -33,6 +34,10 @@
     "eslint-config-next": "15.5.4",
     "prisma": "^6.18.0",
     "tailwindcss": "^4",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
-  }
+  },
+"prisma": {
+  "seed": "node prisma/seed.js"
+}
 }
