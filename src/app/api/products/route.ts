@@ -23,7 +23,7 @@ export async function GET() {
 
 // CREATE product
 export async function POST(req: Request) {
-  try {np
+  try {
     const data = await req.json();
 
     const product = await prisma.product.create({
