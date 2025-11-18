@@ -442,6 +442,7 @@ export default function AdminPage() {
                   categories={categories}
                   loading={loading}
                   handleSubmit={handleSubmit}
+                  fetchCategories={fetchCategories}
                 />
               </Drawer>
             )}
