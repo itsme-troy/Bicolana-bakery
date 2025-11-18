@@ -71,6 +71,8 @@ export default function AdminPage() {
   const [categories, setCategories] = useState([]);
   const [categoryId, setCategoryId] = useState("");
 
+  const [categoryFilter, setCategoryFilter] = useState("all");
+
   // 🔄 Fetch data on mount
   useEffect(() => {
     fetchCategories();
@@ -90,7 +92,7 @@ export default function AdminPage() {
   };
 
   // ------------------------------
-  // 🧁 PRODUCTS
+  // 🧁 PRODUCTS/
   // ------------------------------
   const fetchProducts = async () => {
     try {
@@ -320,11 +322,18 @@ export default function AdminPage() {
     }
   };
 
-  const filteredProducts = products.filter(
-    (p) =>
-      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.description?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredProducts = products
+    .filter((p) => {
+      if (categoryFilter === "all") return true;
+      return p.category?.name === categoryFilter;
+    })
+    .filter((p) => {
+      const q = searchQuery.toLowerCase();
+      return (
+        p.name.toLowerCase().includes(q) ||
+        p.description?.toLowerCase().includes(q)
+      );
+    });
 
   const filteredUsers = users.filter(
     (u) =>
@@ -365,14 +374,30 @@ export default function AdminPage() {
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-3xl font-bold">Product Management</h1>
 
-              {/* GLOBAL SEARCH BAR */}
-              <input
-                type="text"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="px-4 py-2 w-64 border border-gray-300 rounded-full shadow-sm focus:ring-2 focus:ring-orange-400 outline-none"
-              />
+              <div className="flex items-center gap-3">
+                {/* CATEGORY FILTER */}
+                <select
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-md bg-white"
+                >
+                  <option value="all">All Categories</option>
+                  {categories.map((c: any) => (
+                    <option key={c.id} value={c.name}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+
+                {/* SEARCH BAR */}
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="px-4 py-2 w-64 border border-gray-300 rounded-full shadow-sm focus:ring-2 focus:ring-orange-400 outline-none"
+                />
+              </div>
 
               <button
                 onClick={() => {

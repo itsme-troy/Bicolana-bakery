@@ -1,14 +1,38 @@
 import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
 
-// (handles GET and POST for products)
 const prisma = new PrismaClient();
 
-
-// GET all products (with category)
-export async function GET() {
+// =========================
+// GET (with category + search filtering)
+// =========================
+export async function GET(req: Request) {
   try {
+    const { searchParams } = new URL(req.url);
+
+    const category = searchParams.get("category");
+    const search = searchParams.get("search");
+
     const products = await prisma.product.findMany({
+      where: {
+        AND: [
+          // CATEGORY FILTER
+          category && category !== "all"
+            ? { category: { name: category } }
+            : {},
+
+          // SEARCH FILTER
+          search
+            ? {
+                OR: [
+                  { name: { contains: search, mode: "insensitive" } },
+                  { description: { contains: search, mode: "insensitive" } },
+                ],
+              }
+            : {},
+        ],
+      },
+
       include: { category: true },
       orderBy: { createdAt: "desc" },
     });
@@ -16,12 +40,13 @@ export async function GET() {
     return NextResponse.json(products);
   } catch (error) {
     console.error("Error fetching products:", error);
-    return NextResponse.json([], { status: 500 }); // ALWAYS return array
+    return NextResponse.json([], { status: 500 });
   }
 }
 
-
-// CREATE product
+// =========================
+// POST - Create product
+// =========================
 export async function POST(req: Request) {
   try {
     const data = await req.json();
@@ -32,7 +57,7 @@ export async function POST(req: Request) {
         description: data.description,
         price: parseFloat(data.price),
         image: data.image,
-        categoryId: Number(data.categoryId), // ⬅ REQUIRED NOW
+        categoryId: Number(data.categoryId),
       },
     });
 
@@ -41,23 +66,6 @@ export async function POST(req: Request) {
     console.error("Error creating product:", error);
     return NextResponse.json(
       { error: "Failed to create product" },
-      { status: 500 }
-    );
-  }
-}
-
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  const id = parseInt(params.id);
-  try {
-    await prisma.product.delete({ where: { id } });
-    return NextResponse.json({ message: "Product deleted" });
-  } catch (error) {
-    console.error("Error deleting product:", error);
-    return NextResponse.json(
-      { error: "Failed to delete product" },
       { status: 500 }
     );
   }
