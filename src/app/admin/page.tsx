@@ -73,6 +73,10 @@ export default function AdminPage() {
 
   const [categoryFilter, setCategoryFilter] = useState("all");
 
+  // PAGINATION STATES
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
   // 🔄 Fetch data on mount
   useEffect(() => {
     fetchCategories();
@@ -335,6 +339,14 @@ export default function AdminPage() {
       );
     });
 
+  // PAGINATED PRODUCTS
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   const filteredUsers = users.filter(
     (u) =>
       u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -415,10 +427,32 @@ export default function AdminPage() {
             </div>
 
             <ProductTable
-              products={filteredProducts}
+              products={paginatedProducts}
               handleEdit={handleEdit}
               handleDelete={handleDelete}
             />
+            {/* PAGINATION */}
+            <div className="flex items-center justify-center gap-3 mt-4">
+              <button
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((p) => p - 1)}
+                className="px-3 py-1 bg-gray-200 rounded disabled:opacity-40"
+              >
+                Prev
+              </button>
+
+              <span className="text-sm text-gray-700">
+                Page {currentPage} of {totalPages}
+              </span>
+
+              <button
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((p) => p + 1)}
+                className="px-3 py-1 bg-gray-200 rounded disabled:opacity-40"
+              >
+                Next
+              </button>
+            </div>
 
             {/* Drawer for ProductForm */}
             {showForm && (
