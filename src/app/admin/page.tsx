@@ -77,6 +77,11 @@ export default function AdminPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
+  //   Order pagination states
+  const [orderPage, setOrderPage] = useState(1);
+  const ordersPerPage = 5;
+  const [ordersTotalPages, setOrdersTotalPages] = useState(1);
+
   // PAGINATION FOR USERS
   const [userPage, setUserPage] = useState(1);
   const usersPerPage = 5;
@@ -88,6 +93,18 @@ export default function AdminPage() {
     fetchUsers();
     fetchOrders();
   }, []);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [orderPage]);
+
+  useEffect(() => {
+    setUserPage(1);
+  }, [searchQuery, users]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, categoryFilter, products]);
 
   const fetchCategories = async () => {
     try {
@@ -305,7 +322,10 @@ export default function AdminPage() {
   );
 
   // TOTAL PAGES FOR USERS
-  const totalUserPages = Math.ceil(filteredUsers.length / usersPerPage);
+  const totalUserPages = Math.max(
+    1,
+    Math.ceil(filteredUsers.length / usersPerPage)
+  );
 
   // PAGINATED USERS
   const paginatedUsers = filteredUsers.slice(
@@ -319,9 +339,10 @@ export default function AdminPage() {
   const fetchOrders = async () => {
     try {
       setLoadingOrders(true);
-      const res = await fetch("/api/orders");
 
-      // Handle non-OK responses
+      const res = await fetch(
+        `/api/orders?page=${orderPage}&limit=${ordersPerPage}`
+      );
       if (!res.ok) {
         console.error("Error fetching orders:", await res.text());
         setOrders([]);
@@ -330,13 +351,15 @@ export default function AdminPage() {
 
       const data = await res.json();
 
-      // ✅ Ensure data is always an array
-      if (Array.isArray(data)) {
-        setOrders(data);
-      } else {
+      // Validate response
+      if (!Array.isArray(data.orders)) {
         console.error("Unexpected orders response:", data);
         setOrders([]);
+        return;
       }
+
+      setOrders(data.orders);
+      setOrdersTotalPages(data.totalPages || 1);
     } catch (error) {
       console.error("Error fetching orders:", error);
       setOrders([]);
@@ -532,7 +555,7 @@ export default function AdminPage() {
             {/* PAGINATION FOR USERS */}
             <div className="flex items-center justify-center gap-3 mt-4">
               <button
-                disabled={userPage === 1}
+                disabled={userPage <= 1 || filteredUsers.length === 0}
                 onClick={() => setUserPage((p) => p - 1)}
                 className="px-3 py-1 bg-gray-200 rounded disabled:opacity-40"
               >
@@ -544,7 +567,7 @@ export default function AdminPage() {
               </span>
 
               <button
-                disabled={userPage === totalUserPages}
+                disabled={totalUserPages === 0 || userPage >= totalUserPages}
                 onClick={() => setUserPage((p) => p + 1)}
                 className="px-3 py-1 bg-gray-200 rounded disabled:opacity-40"
               >
@@ -634,6 +657,28 @@ export default function AdminPage() {
                   handleEditOrder={handleEditOrder}
                   handleDeleteOrder={handleDeleteOrder}
                 />
+
+                <div className="flex items-center justify-center gap-3 mt-4">
+                  <button
+                    disabled={orderPage === 1}
+                    onClick={() => setOrderPage((p) => p - 1)}
+                    className="px-3 py-1 bg-gray-200 rounded disabled:opacity-40"
+                  >
+                    Prev
+                  </button>
+
+                  <span className="text-sm text-gray-700">
+                    Page {orderPage} of {ordersTotalPages}
+                  </span>
+
+                  <button
+                    disabled={orderPage === ordersTotalPages}
+                    onClick={() => setOrderPage((p) => p + 1)}
+                    className="px-3 py-1 bg-gray-200 rounded disabled:opacity-40"
+                  >
+                    Next
+                  </button>
+                </div>
 
                 {/* Drawer for OrderForm */}
                 {showForm && (

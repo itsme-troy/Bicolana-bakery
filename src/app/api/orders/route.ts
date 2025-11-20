@@ -46,24 +46,33 @@ export async function POST(req: Request) {
 }
 
 // ✅ GET all orders
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    const orders = await prisma.order.findMany({
-      include: {
-        user: true,
-        orderProducts: {
-          include: {
-            product: true,
+    const { searchParams } = new URL(req.url);
+    const page = Number(searchParams.get("page")) || 1;
+    const limit = Number(searchParams.get("limit")) || 5;
+
+    const skip = (page - 1) * limit;
+
+    const [orders, total] = await Promise.all([
+      prisma.order.findMany({
+        skip,
+        take: limit,
+        include: {
+          user: true,
+          orderProducts: {
+            include: { product: true },
           },
         },
-      },
-      orderBy: { createdAt: "desc" },
-    });
+        orderBy: { createdAt: "desc" },
+      }),
 
-    // ✅ Format for frontend
+      prisma.order.count(),
+    ]);
+
     const formatted = orders.map((o) => ({
       id: o.id,
-      userId: o.userId,   
+      userId: o.userId,
       user: o.user,
       products: o.orderProducts.map((op) => ({
         id: op.product.id,
@@ -79,11 +88,18 @@ export async function GET() {
       createdAt: o.createdAt,
     }));
 
-    // ✅ Always return an array
-    return NextResponse.json(Array.isArray(formatted) ? formatted : []);
+    return NextResponse.json({
+      orders: formatted,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    });
   } catch (error) {
     console.error("Error fetching orders:", error);
-    // ✅ Return an empty array on error to avoid frontend crash
-    return NextResponse.json([], { status: 200 });
+    return NextResponse.json(
+      { orders: [], total: 0, page: 1, totalPages: 1 },
+      { status: 200 }
+    );
   }
 }
