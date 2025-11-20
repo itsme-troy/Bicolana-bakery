@@ -529,6 +529,29 @@ export default function AdminPage() {
               handleDeleteUser={handleDeleteUser}
             />
 
+            {/* PAGINATION FOR USERS */}
+            <div className="flex items-center justify-center gap-3 mt-4">
+              <button
+                disabled={userPage === 1}
+                onClick={() => setUserPage((p) => p - 1)}
+                className="px-3 py-1 bg-gray-200 rounded disabled:opacity-40"
+              >
+                Prev
+              </button>
+
+              <span className="text-sm text-gray-700">
+                Page {userPage} of {totalUserPages}
+              </span>
+
+              <button
+                disabled={userPage === totalUserPages}
+                onClick={() => setUserPage((p) => p + 1)}
+                className="px-3 py-1 bg-gray-200 rounded disabled:opacity-40"
+              >
+                Next
+              </button>
+            </div>
+
             {/* Drawer for UserForm */}
             {showForm && (
               <Drawer
