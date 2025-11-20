@@ -77,6 +77,10 @@ export default function AdminPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
+  // PAGINATION FOR USERS
+  const [userPage, setUserPage] = useState(1);
+  const usersPerPage = 5;
+
   // 🔄 Fetch data on mount
   useEffect(() => {
     fetchCategories();
@@ -294,6 +298,21 @@ export default function AdminPage() {
     }
   };
 
+  const filteredUsers = users.filter(
+    (u) =>
+      u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      u.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // TOTAL PAGES FOR USERS
+  const totalUserPages = Math.ceil(filteredUsers.length / usersPerPage);
+
+  // PAGINATED USERS
+  const paginatedUsers = filteredUsers.slice(
+    (userPage - 1) * usersPerPage,
+    userPage * usersPerPage
+  );
+
   // ------------------------------
   // 📦 ORDERS
   // ------------------------------
@@ -345,12 +364,6 @@ export default function AdminPage() {
   const paginatedProducts = filteredProducts.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
-  );
-
-  const filteredUsers = users.filter(
-    (u) =>
-      u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      u.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Filter by status
@@ -511,7 +524,7 @@ export default function AdminPage() {
             </div>
 
             <UserTable
-              users={filteredUsers}
+              users={paginatedUsers}
               handleEditUser={handleEditUser}
               handleDeleteUser={handleDeleteUser}
             />
