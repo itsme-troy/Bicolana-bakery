@@ -8,12 +8,6 @@ import Drawer from "../components/Drawer";
 import Pagination from "../components/Pagination";
 
 export default function ProductPage() {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
-  const [image, setImage] = useState("");
-  const [categoryId, setCategoryId] = useState("");
-
   const {
     loading,
     products,
@@ -29,18 +23,28 @@ export default function ProductPage() {
     totalPages,
   } = useProducts();
 
+  // Form state
   const [showForm, setShowForm] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [editItem, setEditItem] = useState(null);
 
-  if (loading) return <p>Loading...</p>;
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
+  const [image, setImage] = useState("");
+  const [categoryId, setCategoryId] = useState("");
 
-  const handleEdit = (p) => {
-    setEditMode(true);
-    setEditItem(p);
-    setShowForm(true);
+  // Reset all form fields
+  const resetForm = () => {
+    setName("");
+    setDescription("");
+    setPrice("");
+    setImage("");
+    setCategoryId("");
+  };
 
-    // populate form fields
+  // Populate form for editing
+  const loadFormData = (p) => {
     setName(p.name || "");
     setDescription(p.description || "");
     setPrice(String(p.price) || "");
@@ -48,20 +52,26 @@ export default function ProductPage() {
     setCategoryId(String(p.categoryId) || "");
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm("Delete this product?")) return;
-
-    await fetch(`/api/products/${id}`, {
-      method: "DELETE",
-    });
-
-    fetchProducts(); // refresh table
+  // When clicking edit
+  const handleEdit = (product) => {
+    setEditMode(true);
+    setEditItem(product);
+    loadFormData(product);
+    setShowForm(true);
   };
 
-  const handleCreate = async (e: React.FormEvent) => {
+  // Delete
+  const handleDelete = async (id) => {
+    if (!confirm("Delete this product?")) return;
+    await fetch(`/api/products/${id}`, { method: "DELETE" });
+    fetchProducts();
+  };
+
+  // Unified submit handler (auto-detects add/update)
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const productData = {
+    const data = {
       name,
       description,
       price: Number(price),
@@ -69,20 +79,34 @@ export default function ProductPage() {
       categoryId: Number(categoryId),
     };
 
-    const res = await fetch("/api/products", {
-      method: "POST",
+    const url = editMode ? `/api/products/${editItem.id}` : "/api/products";
+
+    const method = editMode ? "PUT" : "POST";
+
+    const res = await fetch(url, {
+      method,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(productData),
+      body: JSON.stringify(data),
     });
 
     if (!res.ok) {
-      alert("Failed to create product");
+      alert("Failed to save product");
       return;
     }
 
-    await fetchProducts(); // refresh list
-    setShowForm(false); // close drawer
+    await fetchProducts();
+    setShowForm(false);
   };
+
+  // When clicking add product
+  const startCreate = () => {
+    resetForm();
+    setEditMode(false);
+    setEditItem(null);
+    setShowForm(true);
+  };
+
+  if (loading) return <p>Loading...</p>;
 
   return (
     <>
@@ -110,18 +134,7 @@ export default function ProductPage() {
           />
 
           <button
-            onClick={() => {
-              setShowForm(true);
-              setEditMode(false);
-              setEditItem(null);
-
-              // reset fields
-              setName("");
-              setDescription("");
-              setPrice("");
-              setImage("");
-              setCategoryId("");
-            }}
+            onClick={startCreate}
             className="bg-orange-600 text-white px-4 py-2 rounded"
           >
             + Add Product
@@ -153,7 +166,7 @@ export default function ProductPage() {
             setCategoryId={setCategoryId}
             categories={categories}
             fetchCategories={fetchCategories}
-            handleSubmit={handleCreate}
+            handleSubmit={handleSubmit} // unified handler
             loading={loading}
           />
         </Drawer>

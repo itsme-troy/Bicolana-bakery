@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 
 export function useProducts() {
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
+
+const [products, setProducts] = useState<any[]>([]);
+const [categories, setCategories] = useState<any[]>([]);
 
   const [page, setPage] = useState(1);
   const perPage = 5;
