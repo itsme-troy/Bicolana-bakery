@@ -21,9 +21,7 @@ export function useOrders() {
   }, [page]);
 
   const filtered = orders
-    .filter((o) =>
-      statusFilter === "all" ? true : o.status === statusFilter
-    )
+    .filter((o) => (statusFilter === "all" ? true : o.status === statusFilter))
     .filter(
       (o) =>
         o.id.toString().includes(search.toLowerCase()) ||
@@ -33,8 +31,13 @@ export function useOrders() {
         )
     );
 
+  // ← FIX: correct page count
+  const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
+
+  const paginated = filtered.slice((page - 1) * perPage, page * perPage);
+
   return {
-    orders: filtered,
+    orders: paginated,
     fetchOrders,
     page,
     setPage,
@@ -42,6 +45,6 @@ export function useOrders() {
     setSearch,
     statusFilter,
     setStatusFilter,
-    totalPages: 5, // backend controls this
+    totalPages,
   };
 }

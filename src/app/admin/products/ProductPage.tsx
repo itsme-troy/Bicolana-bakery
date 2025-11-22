@@ -8,6 +8,12 @@ import Drawer from "../components/Drawer";
 import Pagination from "../components/Pagination";
 
 export default function ProductPage() {
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
+  const [image, setImage] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+
   const {
     loading,
     products,
@@ -33,6 +39,49 @@ export default function ProductPage() {
     setEditMode(true);
     setEditItem(p);
     setShowForm(true);
+
+    // populate form fields
+    setName(p.name || "");
+    setDescription(p.description || "");
+    setPrice(String(p.price) || "");
+    setImage(p.image || "");
+    setCategoryId(String(p.categoryId) || "");
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm("Delete this product?")) return;
+
+    await fetch(`/api/products/${id}`, {
+      method: "DELETE",
+    });
+
+    fetchProducts(); // refresh table
+  };
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const productData = {
+      name,
+      description,
+      price: Number(price),
+      image,
+      categoryId: Number(categoryId),
+    };
+
+    const res = await fetch("/api/products", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(productData),
+    });
+
+    if (!res.ok) {
+      alert("Failed to create product");
+      return;
+    }
+
+    await fetchProducts(); // refresh list
+    setShowForm(false); // close drawer
   };
 
   return (
@@ -65,6 +114,13 @@ export default function ProductPage() {
               setShowForm(true);
               setEditMode(false);
               setEditItem(null);
+
+              // reset fields
+              setName("");
+              setDescription("");
+              setPrice("");
+              setImage("");
+              setCategoryId("");
             }}
             className="bg-orange-600 text-white px-4 py-2 rounded"
           >
@@ -73,7 +129,11 @@ export default function ProductPage() {
         </div>
       </div>
 
-      <ProductTable products={products} handleEdit={handleEdit} />
+      <ProductTable
+        products={products}
+        handleEdit={handleEdit}
+        handleDelete={handleDelete}
+      />
 
       <Pagination page={page} totalPages={totalPages} onChange={setPage} />
 
@@ -81,10 +141,20 @@ export default function ProductPage() {
         <Drawer onClose={() => setShowForm(false)} title="Product Form">
           <ProductForm
             editMode={editMode}
-            {...editItem}
+            name={name}
+            description={description}
+            price={price}
+            image={image}
+            categoryId={categoryId}
+            setName={setName}
+            setDescription={setDescription}
+            setPrice={setPrice}
+            setImage={setImage}
+            setCategoryId={setCategoryId}
             categories={categories}
             fetchCategories={fetchCategories}
-            handleSubmit={fetchProducts}
+            handleSubmit={handleCreate}
+            loading={loading}
           />
         </Drawer>
       )}
