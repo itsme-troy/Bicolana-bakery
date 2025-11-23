@@ -6,9 +6,30 @@ export const prisma = new PrismaClient();
 // =========================
 // POST - Create product
 // =========================
+
+export async function GET() {
+  try {
+    const products = await prisma.product.findMany({
+      include: { category: true },
+    });
+
+    return NextResponse.json(products);
+  } catch (err) {
+    console.error("GET /api/products ERROR:", err);
+    return NextResponse.json([], { status: 500 });
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const data = await req.json();
+
+    if (!data.categoryId) {
+      return NextResponse.json(
+        { error: "Category is required" },
+        { status: 400 }
+      );
+    }
 
     const product = await prisma.product.create({
       data: {
@@ -16,22 +37,13 @@ export async function POST(req: Request) {
         description: data.description,
         price: parseFloat(data.price),
         image: data.image,
-      if (!data.categoryId) {
-  return NextResponse.json(
-    { error: "Category is required" },
-    { status: 400 }
-  );
-}
-        
+        categoryId: Number(data.categoryId),
       },
     });
 
     return NextResponse.json(product);
-  } catch (error) {
-    console.error("Error creating product:", error);
-    return NextResponse.json(
-      { error: "Failed to create product" },
-      { status: 500 }
-    );
+  } catch (err) {
+    console.error("POST /api/products ERROR:", err);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

@@ -14,11 +14,12 @@ const [categories, setCategories] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
 
-  const fetchProducts = async () => {
-    const res = await fetch("/api/products");
-    const data = await res.json();
-    setProducts(Array.isArray(data) ? data : []);
-  };
+const fetchProducts = async () => {
+  const res = await fetch("/api/products");
+  const data = await res.json();
+  setProducts(Array.isArray(data) ? data : []);
+};
+
 
   const fetchCategories = async () => {
     const res = await fetch("/api/categories");
