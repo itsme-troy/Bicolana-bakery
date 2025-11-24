@@ -7,18 +7,42 @@ export const prisma = new PrismaClient();
 // POST - Create product
 // =========================
 
-export async function GET() {
-  try {
-    const products = await prisma.product.findMany({
-      include: { category: true },
-    });
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
 
-    return NextResponse.json(products);
-  } catch (err) {
-    console.error("GET /api/products ERROR:", err);
-    return NextResponse.json([], { status: 500 });
+  const page = parseInt(searchParams.get("page") || "1");
+  const limit = parseInt(searchParams.get("limit") || "10");
+  const skip = (page - 1) * limit;
+
+  const search = searchParams.get("search") || "";
+  const category = searchParams.get("category");
+
+  const where: any = {};
+
+  if (search) {
+    where.name = { contains: search, mode: "insensitive" };
   }
+
+  if (category && category !== "all") {
+    where.category = { name: category };
+  }
+
+  const total = await prisma.product.count({ where });
+
+  const items = await prisma.product.findMany({
+    where,
+    skip,
+    take: limit,
+    include: { category: true },
+    orderBy: { id: "desc" },
+  });
+
+  return NextResponse.json({
+    items,
+    totalPages: Math.ceil(total / limit),
+  });
 }
+
 
 export async function POST(req: Request) {
   try {

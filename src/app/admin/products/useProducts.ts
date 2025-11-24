@@ -8,7 +8,7 @@ const [products, setProducts] = useState<any[]>([]);
 const [categories, setCategories] = useState<any[]>([]);
 
   const [page, setPage] = useState(1);
-  const perPage = 5;
+  const perPage = 10;
 
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -19,6 +19,8 @@ const fetchProducts = async () => {
   const data = await res.json();
   setProducts(Array.isArray(data) ? data : []);
 };
+
+
 
 
   const fetchCategories = async () => {
