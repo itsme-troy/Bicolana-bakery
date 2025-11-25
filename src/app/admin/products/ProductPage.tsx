@@ -121,7 +121,9 @@ export default function ProductPage() {
           >
             <option value="all">All Categories</option>
             {categories.map((c) => (
-              <option key={c.id}>{c.name}</option>
+              <option key={c.id} value={c.name}>
+                {c.name}
+              </option>
             ))}
           </select>
 
