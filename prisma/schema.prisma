@@ -38,7 +38,8 @@ model User {
 model Category {
   id        Int       @id @default(autoincrement())
   name      String    @unique
-  products  Product[]
+  createdAt DateTime  @default(now())
+  products  Product[] // a category can have multiple products
 }
 
 model Product {
@@ -50,8 +51,14 @@ model Product {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   orderItems  OrderProduct[]
-  categoryId Int @default(1)
-  category    Category  @relation(fields: [categoryId], references: [id])
+
+  // Each product belongs to ONE category
+  categoryId Int?  // allows NULL
+  category    Category?  @relation( // product my have no category
+    fields: [categoryId],
+    references: [id], 
+    onDelete: SetNull
+  )
 }
 
 model Order {

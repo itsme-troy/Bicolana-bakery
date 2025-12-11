@@ -1,3 +1,4 @@
+// Drawer.tsx
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -15,93 +16,44 @@ export default function Drawer({
 }) {
   const drawerRef = useRef<HTMLDivElement | null>(null);
 
-  // Close drawer on ESC key
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
-  }, []);
+  }, [onClose]);
 
-  // Mobile drag-to-close support
+  // lock body scroll while drawer open
   useEffect(() => {
-    const drawer = drawerRef.current;
-    if (!drawer) return;
-
-    let startX = 0;
-    let currentX = 0;
-    let isDragging = false;
-
-    const onTouchStart = (e: TouchEvent) => {
-      startX = e.touches[0].clientX;
-      isDragging = true;
-    };
-
-    const onTouchMove = (e: TouchEvent) => {
-      if (!isDragging) return;
-      currentX = e.touches[0].clientX;
-
-      const translate = Math.min(0, currentX - startX);
-      drawer.style.transform = `translateX(${translate}px)`;
-      drawer.style.transition = "none";
-    };
-
-    const onTouchEnd = () => {
-      isDragging = false;
-
-      // If dragged more than 70px → close drawer
-      if (currentX - startX > 70) {
-        drawer.style.transition = "transform 0.25s ease";
-        drawer.style.transform = "translateX(100%)";
-        setTimeout(onClose, 200);
-      } else {
-        // Snap back to position
-        drawer.style.transition = "transform 0.25s ease";
-        drawer.style.transform = "translateX(0px)";
-      }
-    };
-
-    drawer.addEventListener("touchstart", onTouchStart);
-    drawer.addEventListener("touchmove", onTouchMove);
-    drawer.addEventListener("touchend", onTouchEnd);
-
-    return () => {
-      drawer.removeEventListener("touchstart", onTouchStart);
-      drawer.removeEventListener("touchmove", onTouchMove);
-      drawer.removeEventListener("touchend", onTouchEnd);
-    };
+    document.body.style.overflow = "hidden";
+    return () => (document.body.style.overflow = "");
   }, []);
 
   return (
-    <div className="fixed inset-0 flex justify-end z-50">
-      {/* Subtle blurred overlay */}
+    <div className="fixed inset-0 z-50 flex items-start justify-end">
       <div
-        className="absolute inset-0 bg-black/10 backdrop-blur-[1px] transition-opacity"
+        className="absolute inset-0 bg-black/25 backdrop-blur-sm"
         onClick={onClose}
       />
 
-      {/* Drawer panel */}
       <div
         ref={drawerRef}
-        className={`relative w-full ${width} h-full bg-white shadow-2xl animate-slideIn p-6 overflow-y-auto`}
+        className={`relative w-full ${width} h-full bg-white shadow-2xl p-6 overflow-y-auto transform transition-transform animate-slideIn`}
       >
-        {/* top-right close */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-600 hover:text-black text-xl"
           aria-label="Close drawer"
+          className="absolute top-4 right-4 text-neutral-600 hover:text-black"
         >
           ✖
         </button>
 
-        {/* Title */}
         {title && (
           <h2 className="text-xl font-semibold mb-4 text-neutral-800">
             {title}
           </h2>
         )}
-
         {children}
       </div>
     </div>

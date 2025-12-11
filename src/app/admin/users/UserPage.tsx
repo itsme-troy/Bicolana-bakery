@@ -1,3 +1,4 @@
+// UserPage.tsx
 "use client";
 
 import { useState } from "react";
@@ -12,27 +13,28 @@ export default function UserPage() {
     useUsers();
 
   const [showForm, setShowForm] = useState(false);
-  const [editUser, setEditUser] = useState(null);
+  const [editUser, setEditUser] = useState<any | null>(null);
 
-  const handleEdit = (u) => {
+  const handleEdit = (u: any) => {
     setEditUser(u);
     setShowForm(true);
   };
 
   return (
     <>
-      <div className="flex justify-between mb-5">
-        <h1 className="text-3xl font-bold">User Management</h1>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <nav className="text-sm text-neutral-500 mb-1">Dashboard / Users</nav>
+          <h1 className="text-3xl font-bold">User Management</h1>
+        </div>
 
-        <div className="flex gap-3">
+        <div className="flex items-center gap-3">
           <input
-            type="text"
             value={search}
-            placeholder="Search…"
             onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search..."
             className="border rounded px-3 py-2"
           />
-
           <button
             onClick={() => {
               setEditUser(null);
@@ -45,16 +47,38 @@ export default function UserPage() {
         </div>
       </div>
 
-      <UserTable users={users} handleEditUser={handleEdit} />
+      <UserTable
+        users={users}
+        handleEditUser={handleEdit}
+        handleDeleteUser={async (id: number) => {
+          if (!confirm("Delete user?")) return;
+          await fetch(`/api/users/${id}`, { method: "DELETE" });
+          fetchUsers();
+        }}
+      />
 
       <Pagination page={page} totalPages={totalPages} onChange={setPage} />
 
       {showForm && (
-        <Drawer onClose={() => setShowForm(false)} title="User Form">
+        <Drawer
+          onClose={() => setShowForm(false)}
+          title={editUser ? "Edit User" : "Create User"}
+        >
           <UserForm
             editUserMode={!!editUser}
-            {...editUser}
-            handleUserSubmit={fetchUsers}
+            userName={editUser?.name || ""}
+            userEmail={editUser?.email || ""}
+            userPassword={""}
+            userRole={editUser?.role || "customer"}
+            setUserName={() => {}}
+            setUserEmail={() => {}}
+            setUserPassword={() => {}}
+            setUserRole={() => {}}
+            handleUserSubmit={async (e: any) => {
+              e.preventDefault();
+              await fetchUsers();
+              setShowForm(false);
+            }}
           />
         </Drawer>
       )}

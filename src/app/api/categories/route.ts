@@ -1,40 +1,17 @@
-import { PrismaClient } from "@prisma/client";
+// app/api/categories/route.ts  (Next 13 route handler style)
 import { NextResponse } from "next/server";
+import prisma from "@/lib/prisma"; // your prisma client
 
-const prisma = new PrismaClient();
-
-// GET all categories
 export async function GET() {
-  const categories = await prisma.category.findMany({
-    orderBy: { name: "asc" },
-  });
-
-  return NextResponse.json(categories);
+  const cats = await prisma.category.findMany({ orderBy: { name: "asc" } });
+  return NextResponse.json(cats);
 }
 
-// CREATE category
 export async function POST(req: Request) {
-  try {
-    const { name } = await req.json();
-
-    if (!name || name.trim() === "") {
-      return NextResponse.json(
-        { error: "Category name is required" },
-        { status: 400 }
-      );
-    }
-
-    const category = await prisma.category.create({
-      data: { name },
-    });
-
-    // VERY IMPORTANT: Return JSON
-    return NextResponse.json(category);
-  } catch (error) {
-    console.error("Error creating category:", error);
-    return NextResponse.json(
-      { error: "Failed to create category" },
-      { status: 500 }
-    );
+  const { name } = await req.json();
+  if (!name || !name.trim()) {
+    return NextResponse.json({ error: "Name required" }, { status: 400 });
   }
+  const created = await prisma.category.create({ data: { name: name.trim() } });
+  return NextResponse.json(created, { status: 201 });
 }

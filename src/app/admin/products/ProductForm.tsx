@@ -1,6 +1,7 @@
+// ProductForm.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface ProductFormProps {
   editMode: boolean;
@@ -21,7 +22,6 @@ interface ProductFormProps {
 
   handleSubmit: (e: React.FormEvent) => void;
 
-  // NEW: parent must pass fetchCategories()
   fetchCategories?: () => Promise<void>;
 }
 
@@ -40,34 +40,24 @@ export default function ProductForm({
   categories,
   loading,
   handleSubmit,
-  fetchCategories, // NEW
+  fetchCategories,
 }: ProductFormProps) {
-  // NEW: States for inline category creation
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [savingCategory, setSavingCategory] = useState(false);
 
   const handleCreateCategory = async () => {
     if (!newCategoryName.trim()) return;
-
+    setSavingCategory(true);
     try {
-      setSavingCategory(true);
-
       const res = await fetch("/api/categories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: newCategoryName }),
       });
-
-      const newCategory = await res.json();
-
-      // Refresh category dropdown
+      const newCat = await res.json();
       if (fetchCategories) await fetchCategories();
-
-      // Auto-select newly added category
-      setCategoryId(String(newCategory.id));
-
-      // Reset
+      setCategoryId(String(newCat.id));
       setNewCategoryName("");
       setShowAddCategory(false);
     } finally {
@@ -78,131 +68,131 @@ export default function ProductForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white border border-orange-200 shadow-md rounded-xl p-6 max-w-lg animate-fadeIn"
+      className="bg-white border border-orange-100 rounded-lg p-6 max-w-2xl space-y-4"
     >
-      <h2 className="text-lg font-semibold mb-4 text-orange-600">
-        {editMode ? "Edit Product" : "Add New Product"}
-      </h2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+        <div className="md:col-span-2 space-y-3">
+          <h2 className="text-lg font-semibold text-orange-600">
+            {editMode ? "Edit Product" : "Add Product"}
+          </h2>
 
-      {/* NAME */}
-      <div className="mb-3">
-        <label className="block text-sm font-medium mb-1">Name</label>
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full border border-neutral-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-orange-500"
-        />
-      </div>
-
-      {/* DESCRIPTION */}
-      <div className="mb-3">
-        <label className="block text-sm font-medium mb-1">Description</label>
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="w-full border border-neutral-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-orange-500"
-        />
-      </div>
-
-      {/* CATEGORY DROPDOWN */}
-      <div className="mb-3">
-        <label className="block text-sm font-medium mb-1">Category</label>
-
-        <select
-          value={categoryId}
-          onChange={(e) => setCategoryId(e.target.value)}
-          className="w-full border border-neutral-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-orange-500"
-        >
-          <option value="">Select Category</option>
-          {categories.map((cat) => (
-            <option key={cat.id} value={cat.id}>
-              {cat.name}
-            </option>
-          ))}
-        </select>
-
-        {/* ADD NEW CATEGORY BUTTON */}
-        <button
-          type="button"
-          onClick={() => setShowAddCategory(!showAddCategory)}
-          className="text-orange-600 mt-2 text-sm hover:underline"
-        >
-          ➕ Add New Category
-        </button>
-      </div>
-
-      {/* INLINE CATEGORY CREATOR */}
-      {showAddCategory && (
-        <div className="mb-3 p-3 border rounded bg-orange-50 animate-fadeIn">
-          <label className="block text-sm font-medium mb-1">
-            New Category Name
-          </label>
-
-          <input
-            type="text"
-            value={newCategoryName}
-            onChange={(e) => setNewCategoryName(e.target.value)}
-            className="w-full border border-neutral-300 rounded-md px-3 py-2"
-          />
-
-          <div className="flex gap-2 mt-3">
-            <button
-              type="button"
-              onClick={handleCreateCategory}
-              disabled={savingCategory}
-              className="bg-orange-600 text-white px-3 py-1 rounded-md hover:bg-orange-700"
-            >
-              {savingCategory ? "Saving..." : "Save Category"}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setShowAddCategory(false)}
-              className="px-3 py-1 rounded-md border"
-            >
-              Cancel
-            </button>
+          <div>
+            <label className="block text-sm font-medium">Name</label>
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="mt-1 w-full border rounded px-3 py-2"
+            />
           </div>
+
+          <div>
+            <label className="block text-sm font-medium">Description</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="mt-1 w-full border rounded px-3 py-2"
+              rows={4}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium">Price (₱)</label>
+              <input
+                type="number"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                className="mt-1 w-full border rounded px-3 py-2"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium">Category</label>
+              <select
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+                className="mt-1 w-full border rounded px-3 py-2"
+              >
+                <option value="">Select category</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                type="button"
+                onClick={() => setShowAddCategory((s) => !s)}
+                className="text-sm mt-2 text-orange-600 hover:underline"
+              >
+                ➕ Add New Category
+              </button>
+            </div>
+          </div>
+
+          {showAddCategory && (
+            <div className="p-3 bg-orange-50 rounded mt-2">
+              <label className="block text-sm font-medium">New Category</label>
+              <div className="flex gap-2 mt-1">
+                <input
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  className="flex-1 border rounded px-3 py-2"
+                />
+                <button
+                  type="button"
+                  onClick={handleCreateCategory}
+                  disabled={savingCategory}
+                  className="px-3 py-2 bg-orange-600 text-white rounded"
+                >
+                  {savingCategory ? "Saving..." : "Save"}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
-      )}
 
-      {/* PRICE */}
-      <div className="mb-3">
-        <label className="block text-sm font-medium mb-1">Price (₱)</label>
-        <input
-          type="number"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          className="w-full border border-neutral-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-orange-500"
-        />
+        {/* Right column: image + preview */}
+        <div className="space-y-3">
+          <div>
+            <label className="block text-sm font-medium">Image URL</label>
+            <input
+              value={image}
+              onChange={(e) => setImage(e.target.value)}
+              className="mt-1 w-full border rounded px-3 py-2"
+            />
+          </div>
+
+          {image ? (
+            <div className="border rounded overflow-hidden">
+              <img
+                src={image}
+                alt="preview"
+                className="w-full h-40 object-cover"
+              />
+            </div>
+          ) : (
+            <div className="h-40 w-full bg-neutral-50 border rounded flex items-center justify-center text-neutral-400">
+              No image
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-orange-600 text-white py-2 rounded"
+          >
+            {loading
+              ? editMode
+                ? "Updating…"
+                : "Adding…"
+              : editMode
+              ? "Update Product"
+              : "Add Product"}
+          </button>
+        </div>
       </div>
-
-      {/* IMAGE */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1">Image URL</label>
-        <input
-          type="text"
-          value={image}
-          onChange={(e) => setImage(e.target.value)}
-          className="w-full border border-neutral-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-orange-500"
-        />
-      </div>
-
-      {/* SUBMIT BUTTON */}
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full bg-orange-600 text-white py-2 rounded-md font-semibold hover:bg-orange-700 transition disabled:opacity-60"
-      >
-        {loading
-          ? editMode
-            ? "Updating..."
-            : "Adding..."
-          : editMode
-          ? "Update Product"
-          : "Add Product"}
-      </button>
     </form>
   );
 }
