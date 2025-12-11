@@ -55,8 +55,8 @@ export default function Sidebar() {
   return (
     <>
       <aside
-        className={`h-screen bg-neutral-900 text-neutral-100 transition-all duration-300
-          ${open ? "w-64" : "w-16"} hidden md:flex flex-col shadow-lg`}
+        className={` overflow-y-auto bg-neutral-900 text-neutral-100 transition-all duration-300
+    ${open ? "w-64" : "w-16"} hidden md:flex flex-col shadow-lg`}
       >
         {/* header */}
         <div className="flex items-center justify-between px-4 py-5 border-b border-white/6">

@@ -9,8 +9,8 @@ export default function Dashboard() {
     <div className="space-y-10">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="text-neutral-500">Welcome back, Admin</p>
+        <h1 className="text-3xl font-bold text-neutral-800">Dashboard</h1>
+        <p className="text-neutral-600">Welcome back, Admin</p>
       </div>
 
       {/* Cards */}
@@ -62,8 +62,8 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top Products */}
         <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <h2 className="font-semibold mb-2">Top Products</h2>
-          <p className="text-neutral-500 text-sm mb-4">
+          <h2 className="font-semibold text-neutral-800 mb-2">Top Products</h2>
+          <p className="text-neutral-700 text-sm mb-4">
             Best sellers this week
           </p>
 
@@ -83,20 +83,22 @@ export default function Dashboard() {
                   {i + 1}
                 </span>
                 <div>
-                  <p className="font-medium">{p.name}</p>
-                  <p className="text-neutral-500 text-sm">{p.sold} sold</p>
+                  <p className="font-medium text-neutral-600">{p.name}</p>
+                  <p className="text-neutral-700 text-sm">{p.sold} sold</p>
                 </div>
               </div>
 
-              <p className="font-semibold">{p.revenue}</p>
+              <p className="font-semibold text-neutral-600">{p.revenue}</p>
             </div>
           ))}
         </div>
 
         {/* Recent Activity */}
         <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <h2 className="font-semibold mb-2">Recent Activity</h2>
-          <p className="text-neutral-500 text-sm mb-4">Latest updates</p>
+          <h2 className="font-semibold text-neutral-800 mb-2">
+            Recent Activity
+          </h2>
+          <p className="text-neutral-700 text-sm mb-4">Latest updates</p>
 
           {[
             {
@@ -136,8 +138,8 @@ export default function Dashboard() {
                 }`}
               ></span>
               <div>
-                <p className="font-medium">{a.text}</p>
-                <p className="text-neutral-500 text-xs">{a.time}</p>
+                <p className="font-medium text-neutral-600">{a.text}</p>
+                <p className="text-neutral-700 text-xs">{a.time}</p>
               </div>
             </div>
           ))}

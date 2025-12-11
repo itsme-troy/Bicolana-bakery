@@ -11,7 +11,6 @@ import {
   Legend,
 } from "chart.js";
 
-// REGISTER EVERYTHING REQUIRED FOR LINE CHART
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -37,10 +36,17 @@ export default function SalesChart() {
     ],
   };
 
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false, // 🔥 Key fix
+  };
+
   return (
-    <div className="bg-white p-6 rounded-lg shadow-sm border h-[350px]">
-      <h2 className="font-semibold mb-3">Sales Overview</h2>
-      <Line data={data} />
+    <div className="bg-white p-6 rounded-lg shadow-sm border min-h-[380px] h-full">
+      <h2 className="font-semibold text-neutral-800 mb-3">Sales Overview</h2>
+      <div className="h-[300px]">
+        <Line data={data} options={options} />
+      </div>
     </div>
   );
 }

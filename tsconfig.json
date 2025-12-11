@@ -20,8 +20,12 @@
       }
     ],
     "paths": {
-        "@/*": ["*"]
+        "@/*": ["*"],
+        "@/components/*": ["app/admin/components/*"],
+        "@/admin/*": ["app/admin/*"]
+
     }
+    
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "prisma/seed.js", "prisma/productSeed.js"],
   "exclude": ["node_modules"]

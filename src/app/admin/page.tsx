@@ -2,7 +2,6 @@
 "use client";
 
 import { useState } from "react";
-import Sidebar from "./components/Sidebar";
 import Dashboard from "./dashboard/Dashboard";
 import ProductPage from "./products/ProductPage";
 import UserPage from "./users/UserPage";
@@ -16,8 +15,6 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <div className="flex w-full">
-        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-
         <main className="flex-1 p-6 md:p-10">
           {activeTab === "dashboard" && <Dashboard />}
           {activeTab === "products" && <ProductPage />}
