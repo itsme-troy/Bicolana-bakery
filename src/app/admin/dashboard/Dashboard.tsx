@@ -6,15 +6,14 @@ import CategoryChart from "../components/CategoryChart";
 
 export default function Dashboard() {
   return (
-    <div className="space-y-10">
+    <div className="space-y-10 px-4 sm:px-6 lg:px-10">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-neutral-800">Dashboard</h1>
         <p className="text-neutral-600">Welcome back, Admin</p>
       </div>
 
       {/* Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <MetricCard
           title="Total Revenue"
           value="$14,234.50"
@@ -50,8 +49,8 @@ export default function Dashboard() {
       </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        <div className="lg:col-span-2 h-[300px] sm:h-[350px]">
           <SalesChart />
         </div>
 
