@@ -1,7 +1,6 @@
-// ProductTable.tsx
 "use client";
 
-import { Trash2, Edit3 } from "lucide-react";
+import { Edit3, Trash2 } from "lucide-react";
 
 interface ProductTableProps {
   products: any[];
@@ -14,99 +13,107 @@ export default function ProductTable({
   handleEdit,
   handleDelete,
 }: ProductTableProps) {
+  const getStatus = (stock: number) => {
+    if (stock === 0)
+      return { label: "Out of Stock", color: "bg-red-100 text-red-600" };
+    if (stock < 10)
+      return { label: "Low Stock", color: "bg-yellow-100 text-yellow-700" };
+    return { label: "In Stock", color: "bg-green-100 text-green-600" };
+  };
+
   return (
-    <div className="bg-white shadow-sm rounded-lg border border-neutral-200 mb-6">
+    <div className="rounded-xl border border-neutral-200 bg-white shadow-sm overflow-hidden w-full">
       <table className="w-full table-auto">
-        <thead>
-          <tr className="bg-orange-50 text-left text-sm">
-            <th className="p-3">#</th>
-            <th className="p-3">Product</th>
-            <th className="p-3">Category</th>
-            <th className="p-3">Price</th>
-            <th className="p-3">Description</th>
-            <th className="p-3 text-center w-28">Actions</th>
+        {/* HEADER */}
+        <thead className="bg-neutral-50 text-neutral-600 text-sm border-b">
+          <tr>
+            <th className="px-4 py-3 font-medium">PRODUCT</th>
+            <th className="px-4 py-3 font-medium">CATEGORY</th>
+            <th className="px-4 py-3 font-medium">PRICE</th>
+            <th className="px-4 py-3 font-medium">STOCK</th>
+            <th className="px-4 py-3 font-medium">STATUS</th>
+            <th className="px-4 py-3 font-medium text-center w-[90px]">
+              ACTIONS
+            </th>
           </tr>
         </thead>
 
-        <tbody>
+        {/* BODY */}
+        <tbody className="text-neutral-700">
           {products.length === 0 ? (
             <tr>
-              <td colSpan={6} className="text-center p-8 text-neutral-500">
-                <div className="space-y-2">
-                  <div className="text-lg font-medium">No products yet</div>
-                  <div className="text-sm">
-                    Add your first product to get started.
-                  </div>
-                </div>
+              <td colSpan={6} className="p-10 text-center text-neutral-500">
+                No products yet
               </td>
             </tr>
           ) : (
-            products.map((p, i) => (
-              <tr
-                key={p.id}
-                className="group border-t hover:bg-orange-50 transition"
-              >
-                <td className="p-3 text-neutral-500 font-semibold">{i + 1}</td>
+            products.map((p, i) => {
+              const status = getStatus(p.stock);
 
-                <td className="p-3 flex items-center gap-3">
-                  {p.image ? (
+              return (
+                <tr
+                  key={p.id}
+                  className="border-b last:border-none hover:bg-neutral-50 transition"
+                >
+                  {/* PRODUCT CELL */}
+                  <td className="px-4 py-4 flex items-center gap-3">
                     <img
-                      src={p.image}
+                      src={p.image || "/placeholder.png"}
                       alt={p.name}
-                      className="h-12 w-12 rounded object-cover border"
+                      className="h-12 w-12 rounded-lg object-cover border"
                     />
-                  ) : (
-                    <div className="h-12 w-12 rounded bg-neutral-100 flex items-center justify-center text-neutral-400">
-                      —
+                    <div>
+                      <p className="font-semibold">{p.name}</p>
+                      <p className="text-xs text-neutral-400">ID: {p.id}</p>
                     </div>
-                  )}
-                  <div>
-                    <div className="font-medium">{p.name}</div>
-                    <div className="text-xs text-neutral-500">
-                      {p.sku || ""}
-                    </div>
-                  </div>
-                </td>
+                  </td>
 
-                <td className="p-3">
-                  {p.category?.name ? (
-                    <span className="inline-block px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs">
-                      {p.category.name}
+                  {/* CATEGORY */}
+                  <td className="px-4 py-4">
+                    <span className="px-2.5 py-1 text-xs rounded-full bg-orange-100 text-orange-700 font-medium">
+                      {p.category?.name || "—"}
                     </span>
-                  ) : (
-                    "—"
-                  )}
-                </td>
+                  </td>
 
-                <td className="p-3 text-orange-600 font-semibold">
-                  ₱{p.price}
-                </td>
+                  {/* PRICE */}
+                  <td className="px-4 py-4 font-medium text-neutral-800">
+                    ₱{Number(p.price).toLocaleString()}
+                  </td>
 
-                <td className="p-3 max-w-xs truncate">
-                  {p.description || "No description"}
-                </td>
+                  {/* STOCK */}
+                  <td className="px-4 py-4">{p.stock}</td>
 
-                <td className="p-3 text-center">
-                  <div className="flex justify-center gap-3 opacity-0 group-hover:opacity-100 transition">
-                    <button
-                      onClick={() => handleEdit(p)}
-                      title="Edit"
-                      className="p-1 rounded hover:bg-white/30"
+                  {/* STATUS PILL */}
+                  <td className="px-4 py-4">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-medium ${status.color}`}
                     >
-                      <Edit3 size={18} />
-                    </button>
+                      {status.label}
+                    </span>
+                  </td>
 
-                    <button
-                      onClick={() => handleDelete(p.id)}
-                      title="Delete"
-                      className="p-1 rounded hover:bg-white/30"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))
+                  {/* ACTION BUTTONS */}
+                  <td className="px-4 py-4 text-center">
+                    <div className="flex items-center justify-center gap-3">
+                      <button
+                        onClick={() => handleEdit(p)}
+                        className="p-1.5 rounded-lg hover:bg-neutral-200 transition"
+                        title="Edit Product"
+                      >
+                        <Edit3 size={18} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(p.id)}
+                        className="p-1.5 rounded-lg hover:bg-red-100 text-red-600 transition"
+                        title="Delete Product"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })
           )}
         </tbody>
       </table>

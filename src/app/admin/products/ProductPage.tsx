@@ -1,4 +1,4 @@
-// ProductPage.tsx
+// ProductPage.tsx (Improved UI Edition)
 "use client";
 
 import { useState } from "react";
@@ -28,8 +28,6 @@ export default function ProductPage() {
   const [editMode, setEditMode] = useState(false);
   const [editItem, setEditItem] = useState<any | null>(null);
 
-  const [filtersOpen, setFiltersOpen] = useState(true);
-
   const startCreate = () => {
     setEditMode(false);
     setEditItem(null);
@@ -48,36 +46,33 @@ export default function ProductPage() {
     fetchProducts();
   };
 
-  if (loading) return <p>Loading…</p>;
+  if (loading) return <p className="text-neutral-600 p-6">Loading…</p>;
 
   return (
-    <div>
-      {/* Header + Breadcrumb */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <nav className="text-sm text-neutral-500 mb-1">
-            Dashboard / Products
-          </nav>
-          <h1 className="text-3xl font-bold">Product Management</h1>
-        </div>
+    <div className="p-4 sm:p-6 text-neutral-800">
+      {/* Breadcrumb */}
+      <div className="mb-4">
+        <nav className="text-sm text-neutral-500">
+          <span className="hover:text-neutral-700 cursor-pointer">
+            Dashboard
+          </span>
+          <span className="mx-1">/</span>
+          <span className="text-neutral-700 font-medium">Products</span>
+        </nav>
 
-        <div className="flex items-center gap-3">
-          <button
-            onClick={startCreate}
-            className="bg-orange-600 text-white px-4 py-2 rounded shadow hover:brightness-95"
-          >
-            + Add Product
-          </button>
-        </div>
+        <h1 className="text-3xl font-bold tracking-tight mt-1">
+          Product Management
+        </h1>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col md:flex-row md:items-center gap-3 mb-4">
-        <div className="flex items-center gap-3 w-full md:w-auto">
+      {/* Filter Bar + Add Button */}
+      <div className="bg-white border rounded-xl p-4 shadow-sm mb-6">
+        <div className="flex flex-col md:flex-row md:items-center gap-3">
+          {/* Category Filter */}
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="border rounded px-3 py-2"
+            className="border border-neutral-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
           >
             <option value="all">All Categories</option>
             {categories.map((c: any) => (
@@ -87,72 +82,79 @@ export default function ProductPage() {
             ))}
           </select>
 
+          {/* Search Bar */}
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search products..."
-            className="border rounded px-3 py-2 w-full md:w-72"
+            className="border border-neutral-300 rounded-lg px-3 py-2 text-sm flex-1 min-w-[180px] focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
           />
-        </div>
 
-        <div className="ml-auto flex gap-3">
+          {/* Refresh Btn */}
           <button
             onClick={() => {
               setPage(1);
               fetchProducts();
             }}
-            className="px-3 py-2 border rounded"
+            className="px-4 py-2 border border-neutral-300 rounded-lg text-sm hover:bg-neutral-100 transition"
           >
             Refresh
           </button>
 
-          <button
-            onClick={() => setFiltersOpen((s) => !s)}
-            className="px-3 py-2 border rounded"
-          >
+          {/* Advanced Filters Btn */}
+          <button className="px-4 py-2 border border-neutral-300 rounded-lg text-sm hover:bg-neutral-100 transition">
             Advanced Filters
+          </button>
+
+          {/* Add Product Button - right side */}
+          <button
+            onClick={startCreate}
+            className="bg-orange-600 hover:bg-orange-500 text-white px-5 py-2.5 rounded-lg shadow-sm font-medium transition ml-auto md:ml-3"
+          >
+            + Add Product
           </button>
         </div>
       </div>
 
-      <ProductTable
-        products={products}
-        handleEdit={handleEdit}
-        handleDelete={handleDelete}
-      />
+      {/* Product Table */}
+      <div className="bg-white border rounded-xl shadow-sm overflow-hidden">
+        <ProductTable
+          products={products}
+          handleEdit={handleEdit}
+          handleDelete={handleDelete}
+        />
+      </div>
 
-      <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+      {/* Pagination */}
+      <div className="mt-6 flex justify-center">
+        <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+      </div>
 
+      {/* Drawer */}
       {showForm && (
         <Drawer
           onClose={() => setShowForm(false)}
           title={editMode ? "Edit Product" : "Add Product"}
+          className="p-6"
         >
-          <ProductForm
-            editMode={editMode}
-            name={editItem?.name || ""}
-            description={editItem?.description || ""}
-            price={String(editItem?.price || "")}
-            image={editItem?.image || ""}
-            categoryId={String(editItem?.categoryId || "")}
-            setName={
-              () => {} /* parent still handles via your useProducts hook; keep signature consistent */
-            }
-            setDescription={() => {}}
-            setPrice={() => {}}
-            setImage={() => {}}
-            setCategoryId={() => {}}
-            categories={categories}
-            fetchCategories={fetchCategories}
-            handleSubmit={async (e: any) => {
-              e.preventDefault();
-              // unify add/update as before — keep same behavior as original ProductPage logic
-              // For brevity we call fetchProducts after submission in this example.
-              await fetchProducts();
-              setShowForm(false);
-            }}
-            loading={loading}
-          />
+          <div className="space-y-4">
+            <ProductForm
+              editMode={editMode}
+              name={editItem?.name || ""}
+              description={editItem?.description || ""}
+              price={String(editItem?.price || "")}
+              image={editItem?.image || ""}
+              categoryId={String(editItem?.categoryId || "")}
+              categories={categories}
+              fetchCategories={fetchCategories}
+              handleSubmit={async (e: any) => {
+                e.preventDefault();
+                await fetchProducts();
+                setShowForm(false);
+              }}
+              loading={loading}
+            />
+          </div>
         </Drawer>
       )}
     </div>
