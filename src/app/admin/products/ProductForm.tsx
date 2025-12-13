@@ -1,42 +1,44 @@
-// ProductForm.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { Upload, X } from "lucide-react";
 
 interface ProductFormProps {
   editMode: boolean;
   name: string;
-  description: string;
+  description?: string;
   price: string;
   image: string;
   categoryId: string;
+  stock?: string;
   loading: boolean;
 
   setName: (val: string) => void;
-  setDescription: (val: string) => void;
+  setDescription?: (val: string) => void;
   setPrice: (val: string) => void;
   setImage: (val: string) => void;
   setCategoryId: (val: string) => void;
+  setStock?: (val: string) => void;
 
   categories: { id: number; name: string }[];
-
   handleSubmit: (e: React.FormEvent) => void;
-
   fetchCategories?: () => Promise<void>;
 }
 
 export default function ProductForm({
   editMode,
   name,
-  description,
+  description = "",
   price,
   image,
   categoryId,
+  stock,
   setName,
   setDescription,
   setPrice,
   setImage,
   setCategoryId,
+  setStock,
   categories,
   loading,
   handleSubmit,
@@ -45,6 +47,19 @@ export default function ProductForm({
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [savingCategory, setSavingCategory] = useState(false);
+
+  /* -----------------------------
+     Image Upload Handler
+  ----------------------------- */
+  const handleImageUpload = (file: File) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImage(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeImage = () => setImage("");
 
   const handleCreateCategory = async () => {
     if (!newCategoryName.trim()) return;
@@ -66,132 +81,172 @@ export default function ProductForm({
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="bg-white border border-orange-100 rounded-lg p-6 max-w-2xl space-y-4"
-    >
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-        <div className="md:col-span-2 space-y-3">
-          <h2 className="text-lg font-semibold text-orange-600">
-            {editMode ? "Edit Product" : "Add Product"}
-          </h2>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Product Name */}
+      <div>
+        <label className="block text-sm font-medium mb-1">Product Name</label>
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+          required
+        />
+      </div>
 
-          <div>
-            <label className="block text-sm font-medium">Name</label>
+      {/* Category */}
+      <div>
+        <label className="block text-sm font-medium mb-1">Category</label>
+        <select
+          value={categoryId}
+          onChange={(e) => setCategoryId(e.target.value)}
+          className="w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+          required
+        >
+          <option value="">Select category</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+
+        <button
+          type="button"
+          onClick={() => setShowAddCategory((s) => !s)}
+          className="mt-2 inline-flex items-center gap-1 text-sm text-orange-600 hover:underline"
+        >
+          ➕ Add New Category
+        </button>
+      </div>
+
+      {/* Inline Add Category */}
+      {showAddCategory && (
+        <div className="rounded-lg border bg-orange-50 p-3">
+          <label className="block text-sm font-medium mb-1">New Category</label>
+          <div className="flex gap-2">
             <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="mt-1 w-full border rounded px-3 py-2"
+              value={newCategoryName}
+              onChange={(e) => setNewCategoryName(e.target.value)}
+              className="flex-1 rounded-lg border px-3 py-2"
             />
+            <button
+              type="button"
+              onClick={handleCreateCategory}
+              disabled={savingCategory}
+              className="rounded-lg bg-orange-600 px-4 py-2 text-white"
+            >
+              {savingCategory ? "Saving…" : "Save"}
+            </button>
           </div>
-
-          <div>
-            <label className="block text-sm font-medium">Description</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="mt-1 w-full border rounded px-3 py-2"
-              rows={4}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium">Price (₱)</label>
-              <input
-                type="number"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                className="mt-1 w-full border rounded px-3 py-2"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium">Category</label>
-              <select
-                value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value)}
-                className="mt-1 w-full border rounded px-3 py-2"
-              >
-                <option value="">Select category</option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-
-              <button
-                type="button"
-                onClick={() => setShowAddCategory((s) => !s)}
-                className="text-sm mt-2 text-orange-600 hover:underline"
-              >
-                ➕ Add New Category
-              </button>
-            </div>
-          </div>
-
-          {showAddCategory && (
-            <div className="p-3 bg-orange-50 rounded mt-2">
-              <label className="block text-sm font-medium">New Category</label>
-              <div className="flex gap-2 mt-1">
-                <input
-                  value={newCategoryName}
-                  onChange={(e) => setNewCategoryName(e.target.value)}
-                  className="flex-1 border rounded px-3 py-2"
-                />
-                <button
-                  type="button"
-                  onClick={handleCreateCategory}
-                  disabled={savingCategory}
-                  className="px-3 py-2 bg-orange-600 text-white rounded"
-                >
-                  {savingCategory ? "Saving..." : "Save"}
-                </button>
-              </div>
-            </div>
-          )}
         </div>
+      )}
 
-        {/* Right column: image + preview */}
-        <div className="space-y-3">
-          <div>
-            <label className="block text-sm font-medium">Image URL</label>
+      {/* Price */}
+      <div>
+        <label className="block text-sm font-medium mb-1">Price (₱)</label>
+        <input
+          type="number"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          className="w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-orange-500"
+          required
+        />
+      </div>
+
+      {/* Stock (optional) */}
+      {setStock && (
+        <div>
+          <label className="block text-sm font-medium mb-1">Stock</label>
+          <input
+            type="number"
+            value={stock}
+            onChange={(e) => setStock(e.target.value)}
+            className="w-full rounded-lg border px-3 py-2"
+          />
+        </div>
+      )}
+
+      {/* IMAGE UPLOAD */}
+      <div>
+        <label className="block text-sm font-medium mb-2">Product Image</label>
+
+        <div className="relative">
+          <label
+            htmlFor="image-upload"
+            className={`
+              relative flex h-44 w-full cursor-pointer flex-col items-center justify-center
+              rounded-lg border-2 border-dashed transition
+              ${
+                image
+                  ? "border-transparent"
+                  : "border-neutral-300 hover:border-orange-500 hover:bg-orange-50/30"
+              }
+            `}
+          >
             <input
-              value={image}
-              onChange={(e) => setImage(e.target.value)}
-              className="mt-1 w-full border rounded px-3 py-2"
+              id="image-upload"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) =>
+                e.target.files && handleImageUpload(e.target.files[0])
+              }
             />
-          </div>
 
-          {image ? (
-            <div className="border rounded overflow-hidden">
+            {!image ? (
+              <>
+                <Upload className="h-6 w-6 text-neutral-400" />
+                <p className="mt-2 text-sm text-neutral-500">
+                  Drag & drop or click to upload
+                </p>
+                <span className="mt-2 rounded-md bg-orange-600 px-4 py-2 text-sm font-medium text-white shadow-sm">
+                  Upload Image
+                </span>
+              </>
+            ) : (
               <img
                 src={image}
-                alt="preview"
-                className="w-full h-40 object-cover"
+                alt="Preview"
+                className="absolute inset-0 h-full w-full rounded-lg object-cover"
               />
-            </div>
-          ) : (
-            <div className="h-40 w-full bg-neutral-50 border rounded flex items-center justify-center text-neutral-400">
-              No image
-            </div>
-          )}
+            )}
+          </label>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-orange-600 text-white py-2 rounded"
-          >
-            {loading
-              ? editMode
-                ? "Updating…"
-                : "Adding…"
-              : editMode
-              ? "Update Product"
-              : "Add Product"}
-          </button>
+          {/* Remove Image Button */}
+          {image && (
+            <button
+              type="button"
+              onClick={removeImage}
+              className="absolute right-2 top-2 rounded-full bg-black/60 p-1 text-white hover:bg-black"
+              title="Remove image"
+            >
+              <X size={14} />
+            </button>
+          )}
         </div>
+
+        {!image && (
+          <p className="mt-1 text-xs text-neutral-400">
+            PNG, JPG, or WEBP recommended
+          </p>
+        )}
+      </div>
+
+      {/* ACTIONS */}
+      <div className="flex justify-end border-t pt-4">
+        <button
+          type="submit"
+          disabled={loading}
+          className="rounded-lg bg-orange-600 px-6 py-2.5 font-medium text-white hover:bg-orange-500"
+        >
+          {loading
+            ? editMode
+              ? "Updating…"
+              : "Adding…"
+            : editMode
+            ? "Update Product"
+            : "Add Product"}
+        </button>
       </div>
     </form>
   );

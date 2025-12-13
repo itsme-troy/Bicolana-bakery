@@ -1,11 +1,11 @@
-// ProductPage.tsx (Improved UI Edition)
+// ProductPage.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useProducts } from "./useProducts";
 import ProductTable from "./ProductTable";
 import ProductForm from "./ProductForm";
-import Drawer from "../components/Drawer";
+import Modal from "../components/Modal";
 import Pagination from "../components/Pagination";
 
 export default function ProductPage() {
@@ -34,9 +34,9 @@ export default function ProductPage() {
     setShowForm(true);
   };
 
-  const handleEdit = (p: any) => {
+  const handleEdit = (product: any) => {
     setEditMode(true);
-    setEditItem(p);
+    setEditItem(product);
     setShowForm(true);
   };
 
@@ -46,117 +46,95 @@ export default function ProductPage() {
     fetchProducts();
   };
 
-  if (loading) return <p className="text-neutral-600 p-6">Loading…</p>;
+  useEffect(() => {
+    document.body.style.overflow = showForm ? "hidden" : "auto";
+    return () => (document.body.style.overflow = "auto");
+  }, [showForm]);
+
+  if (loading) {
+    return <p className="p-6 text-sm text-neutral-500">Loading products…</p>;
+  }
 
   return (
     <div className="p-4 sm:p-6 text-neutral-800">
       {/* Breadcrumb */}
-      <div className="mb-4">
-        <nav className="text-sm text-neutral-500">
-          <span className="hover:text-neutral-700 cursor-pointer">
-            Dashboard
-          </span>
-          <span className="mx-1">/</span>
-          <span className="text-neutral-700 font-medium">Products</span>
-        </nav>
+      <nav className="text-xs text-neutral-500 mb-1">
+        Dashboard / <span className="text-neutral-700">Products</span>
+      </nav>
 
-        <h1 className="text-3xl font-bold tracking-tight mt-1">
-          Product Management
-        </h1>
+      {/* HEADER ROW */}
+      <div className="flex flex-col lg:flex-row lg:items-center gap-3 mb-4">
+        <h1 className="text-xl font-semibold flex-1">Product Management</h1>
+
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search products..."
+          className="w-full lg:w-64 rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500"
+        />
+
+        <select
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+          className="rounded-lg border px-3 py-2 text-sm"
+        >
+          <option value="all">All Categories</option>
+          {categories.map((c) => (
+            <option key={c.id} value={String(c.id)}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+
+        <span className="text-sm text-neutral-500 whitespace-nowrap">
+          {products.length} products
+        </span>
+
+        <button
+          onClick={startCreate}
+          className="inline-flex items-center gap-1 rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-500"
+        >
+          + Add Product
+        </button>
       </div>
 
-      {/* Filter Bar + Add Button */}
-      <div className="bg-white border rounded-xl p-4 shadow-sm mb-6">
-        <div className="flex flex-col md:flex-row md:items-center gap-3">
-          {/* Category Filter */}
-          <select
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            className="border border-neutral-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-          >
-            <option value="all">All Categories</option>
-            {categories.map((c: any) => (
-              <option key={c.id} value={String(c.id)}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-
-          {/* Search Bar */}
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search products..."
-            className="border border-neutral-300 rounded-lg px-3 py-2 text-sm flex-1 min-w-[180px] focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-          />
-
-          {/* Refresh Btn */}
-          <button
-            onClick={() => {
-              setPage(1);
-              fetchProducts();
-            }}
-            className="px-4 py-2 border border-neutral-300 rounded-lg text-sm hover:bg-neutral-100 transition"
-          >
-            Refresh
-          </button>
-
-          {/* Advanced Filters Btn */}
-          <button className="px-4 py-2 border border-neutral-300 rounded-lg text-sm hover:bg-neutral-100 transition">
-            Advanced Filters
-          </button>
-
-          {/* Add Product Button - right side */}
-          <button
-            onClick={startCreate}
-            className="bg-orange-600 hover:bg-orange-500 text-white px-5 py-2.5 rounded-lg shadow-sm font-medium transition ml-auto md:ml-3"
-          >
-            + Add Product
-          </button>
-        </div>
-      </div>
-
-      {/* Product Table */}
-      <div className="bg-white border rounded-xl shadow-sm overflow-hidden">
+      {/* TABLE */}
+      <div className="bg-white rounded-xl border border-neutral-200 overflow-hidden">
         <ProductTable
           products={products}
-          handleEdit={handleEdit}
-          handleDelete={handleDelete}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
         />
       </div>
 
       {/* Pagination */}
-      <div className="mt-6 flex justify-center">
+      <div className="mt-4 flex justify-center">
         <Pagination page={page} totalPages={totalPages} onChange={setPage} />
       </div>
 
-      {/* Drawer */}
-      {showForm && (
-        <Drawer
-          onClose={() => setShowForm(false)}
-          title={editMode ? "Edit Product" : "Add Product"}
-          className="p-6"
-        >
-          <div className="space-y-4">
-            <ProductForm
-              editMode={editMode}
-              name={editItem?.name || ""}
-              description={editItem?.description || ""}
-              price={String(editItem?.price || "")}
-              image={editItem?.image || ""}
-              categoryId={String(editItem?.categoryId || "")}
-              categories={categories}
-              fetchCategories={fetchCategories}
-              handleSubmit={async (e: any) => {
-                e.preventDefault();
-                await fetchProducts();
-                setShowForm(false);
-              }}
-              loading={loading}
-            />
-          </div>
-        </Drawer>
-      )}
+      {/* Modal */}
+      <Modal
+        open={showForm}
+        onClose={() => setShowForm(false)}
+        title={editMode ? "Edit Product" : "Add Product"}
+      >
+        <ProductForm
+          editMode={editMode}
+          name={editItem?.name || ""}
+          description={editItem?.description || ""}
+          price={String(editItem?.price || "")}
+          image={editItem?.image || ""}
+          categoryId={String(editItem?.categoryId || "")}
+          categories={categories}
+          fetchCategories={fetchCategories}
+          loading={loading}
+          handleSubmit={async (e: any) => {
+            e.preventDefault();
+            await fetchProducts();
+            setShowForm(false);
+          }}
+        />
+      </Modal>
     </div>
   );
 }

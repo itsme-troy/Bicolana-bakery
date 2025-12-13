@@ -80,4 +80,3 @@ model OrderProduct {
   productId Int
   quantity  Int      @default(1)  // ✅ add this
 }
-

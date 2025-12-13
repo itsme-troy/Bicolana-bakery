@@ -4,16 +4,28 @@ const prisma = new PrismaClient();
 async function main() {
   console.log("🌱 Seeding categories...");
 
-  const categories = ["Bread", "Cakes", "Pastries", "Cookies", "Specials"];
+  const categoryNames = [
+    "Bread",
+    "Cakes",
+    "Pastries",
+    "Cookies",
+    "Specials",
+  ];
 
-  // Create or update categories
-  for (const name of categories) {
+  // Create categories (id-safe)
+  for (const name of categoryNames) {
     await prisma.category.upsert({
       where: { name },
       update: {},
       create: { name },
     });
   }
+
+  // Fetch categories with IDs
+  const categories = await prisma.category.findMany();
+  const categoryMap = Object.fromEntries(
+    categories.map((c) => [c.name, c.id])
+  );
 
   console.log("🌱 Seeding products...");
 
@@ -24,36 +36,17 @@ async function main() {
         name: "Classic Pandesal",
         description: "Soft and fluffy Filipino breakfast bread.",
         price: 5,
+        stock: 50,
         image: "/images/pandesal.jpg",
-        categoryId: 1,
+        categoryId: categoryMap["Bread"],
       },
       {
         name: "Spanish Bread",
         description: "Sweet, buttery rolled bread.",
         price: 12,
+        stock: 40,
         image: "/images/spanishbread.jpg",
-        categoryId: 1,
-      },
-      {
-        name: "Cheese Ensaymada",
-        description: "Soft bun with butter, sugar, and cheese.",
-        price: 45,
-        image: "/images/ensaymada.jpg",
-        categoryId: 1,
-      },
-      {
-        name: "Garlic Loaf Bread",
-        description: "Savory garlic loaf.",
-        price: 65,
-        image: "/images/garlicbread.jpg",
-        categoryId: 1,
-      },
-      {
-        name: "Whole Wheat Loaf",
-        description: "Healthy whole grain loaf.",
-        price: 80,
-        image: "/images/wholewheat.jpg",
-        categoryId: 1,
+        categoryId: categoryMap["Bread"],
       },
 
       // --- Cakes ---
@@ -61,73 +54,27 @@ async function main() {
         name: "Chocolate Moist Cake",
         description: "Rich chocolate cake.",
         price: 350,
+        stock: 12,
         image: "/images/chocomoist.jpg",
-        categoryId: 2,
+        categoryId: categoryMap["Cakes"],
       },
       {
         name: "Ube Cream Cake",
         description: "Fluffy ube sponge with halaya.",
         price: 420,
+        stock: 8,
         image: "/images/ubecake.jpg",
-        categoryId: 2,
-      },
-      {
-        name: "Mango Graham Cake",
-        description: "Layered with sweet mangoes.",
-        price: 380,
-        image: "/images/mango.jpg",
-        categoryId: 2,
-      },
-      {
-        name: "Black Forest Cake",
-        description: "Chocolate cherry cake.",
-        price: 450,
-        image: "/images/blackforest.jpg",
-        categoryId: 2,
-      },
-      {
-        name: "Red Velvet Cake",
-        description: "Classic red velvet with cream cheese.",
-        price: 480,
-        image: "/images/redvelvet.jpg",
-        categoryId: 2,
+        categoryId: categoryMap["Cakes"],
       },
 
       // --- Pastries ---
       {
-        name: "Empanada",
-        description: "Savory meat-filled pastry.",
-        price: 30,
-        image: "/images/empanada.jpg",
-        categoryId: 3,
-      },
-      {
         name: "Ham & Cheese Croissant",
         description: "Flaky croissant with ham.",
         price: 55,
+        stock: 0,
         image: "/images/croissant.jpg",
-        categoryId: 3,
-      },
-      {
-        name: "Cinnamon Roll",
-        description: "Iced cinnamon swirl roll.",
-        price: 50,
-        image: "/images/cinnamonroll.jpg",
-        categoryId: 3,
-      },
-      {
-        name: "Chicken Pie",
-        description: "Creamy chicken-filled pastry.",
-        price: 45,
-        image: "/images/chickenpie.jpg",
-        categoryId: 3,
-      },
-      {
-        name: "Pizza Bread",
-        description: "Soft bread with pizza toppings.",
-        price: 25,
-        image: "/images/pizzabread.jpg",
-        categoryId: 3,
+        categoryId: categoryMap["Pastries"],
       },
 
       // --- Cookies ---
@@ -135,36 +82,9 @@ async function main() {
         name: "Chocolate Chip Cookies",
         description: "Soft & chewy chocolate chip cookies.",
         price: 25,
+        stock: 5,
         image: "/images/chocochip.jpg",
-        categoryId: 4,
-      },
-      {
-        name: "Oatmeal Raisin Cookies",
-        description: "Healthy oatmeal raisin cookies.",
-        price: 22,
-        image: "/images/oatmeal.jpg",
-        categoryId: 4,
-      },
-      {
-        name: "Double Chocolate Cookies",
-        description: "Rich chocolate cookies.",
-        price: 28,
-        image: "/images/doublechoco.jpg",
-        categoryId: 4,
-      },
-      {
-        name: "Peanut Butter Cookies",
-        description: "Soft peanut butter cookies.",
-        price: 20,
-        image: "/images/peanutbutter.jpg",
-        categoryId: 4,
-      },
-      {
-        name: "Sugar Cookies",
-        description: "Classic buttery sugar cookies.",
-        price: 18,
-        image: "/images/sugarcookie.jpg",
-        categoryId: 4,
+        categoryId: categoryMap["Cookies"],
       },
 
       // --- Specials ---
@@ -172,39 +92,14 @@ async function main() {
         name: "Ube Cheese Pandesal",
         description: "Ube pandesal with cheese.",
         price: 18,
+        stock: 30,
         image: "/images/ubecheese.jpg",
-        categoryId: 5,
-      },
-      {
-        name: "Bicol Express Bun",
-        description: "Spicy Bicol Express in a bun.",
-        price: 35,
-        image: "/images/bicolexpress.jpg",
-        categoryId: 5,
-      },
-      {
-        name: "Laing Puff",
-        description: "Puff pastry filled with laing.",
-        price: 40,
-        image: "/images/laing.jpg",
-        categoryId: 5,
-      },
-      {
-        name: "Chili Cheese Roll",
-        description: "Cheese with chili flakes.",
-        price: 42,
-        image: "/images/chilicheese.jpg",
-        categoryId: 5,
-      },
-      {
-        name: "Special Pili Roll",
-        description: "Sweet roll with pili nuts.",
-        price: 50,
-        image: "/images/piliroll.jpg",
-        categoryId: 5,
+        categoryId: categoryMap["Specials"],
       },
     ],
   });
+
+  console.log("✅ Seeding complete");
 }
 
 main()
