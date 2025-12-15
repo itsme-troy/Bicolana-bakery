@@ -1,4 +1,4 @@
-// ProductPage.tsx
+// src/app/admin/products/ProductPage.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -24,31 +24,68 @@ export default function ProductPage() {
     totalPages,
   } = useProducts();
 
+  /* ---------------------------
+     FORM STATE (FIX)
+  --------------------------- */
   const [showForm, setShowForm] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [editItem, setEditItem] = useState<any | null>(null);
 
+  const [name, setName] = useState("");
+  const [price, setPrice] = useState("");
+  const [image, setImage] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [description, setDescription] = useState("");
+  const [stock, setStock] = useState("");
+
+  /* ---------------------------
+     CREATE PRODUCT
+  --------------------------- */
   const startCreate = () => {
     setEditMode(false);
-    setEditItem(null);
+
+    setName("");
+    setPrice("");
+    setImage("");
+    setCategoryId("");
+    setDescription("");
+    setStock("");
+
     setShowForm(true);
   };
 
+  /* ---------------------------
+     EDIT PRODUCT
+  --------------------------- */
   const handleEdit = (product: any) => {
     setEditMode(true);
-    setEditItem(product);
+
+    setName(product.name || "");
+    setPrice(String(product.price || ""));
+    setImage(product.image || "");
+    setCategoryId(String(product.categoryId || ""));
+    setDescription(product.description || "");
+    setStock(String(product.stock || ""));
+
     setShowForm(true);
   };
 
+  /* ---------------------------
+     DELETE PRODUCT
+  --------------------------- */
   const handleDelete = async (id: number) => {
     if (!confirm("Delete this product?")) return;
     await fetch(`/api/products/${id}`, { method: "DELETE" });
     fetchProducts();
   };
 
+  /* ---------------------------
+     LOCK SCROLL WHEN MODAL OPEN
+  --------------------------- */
   useEffect(() => {
     document.body.style.overflow = showForm ? "hidden" : "auto";
-    return () => (document.body.style.overflow = "auto");
+    return () => {
+      document.body.style.overflow = "auto";
+    };
   }, [showForm]);
 
   if (loading) {
@@ -58,19 +95,19 @@ export default function ProductPage() {
   return (
     <div className="p-4 sm:p-6 text-neutral-800">
       {/* Breadcrumb */}
-      <nav className="text-xs text-neutral-500 mb-1">
+      <nav className="mb-1 text-xs text-neutral-500">
         Dashboard / <span className="text-neutral-700">Products</span>
       </nav>
 
-      {/* HEADER ROW */}
-      <div className="flex flex-col lg:flex-row lg:items-center gap-3 mb-4">
-        <h1 className="text-xl font-semibold flex-1">Product Management</h1>
+      {/* HEADER */}
+      <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center">
+        <h1 className="flex-1 text-xl font-semibold">Product Management</h1>
 
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search products..."
-          className="w-full lg:w-64 rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500"
+          className="w-full rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 lg:w-64"
         />
 
         <select
@@ -86,7 +123,7 @@ export default function ProductPage() {
           ))}
         </select>
 
-        <span className="text-sm text-neutral-500 whitespace-nowrap">
+        <span className="whitespace-nowrap text-sm text-neutral-500">
           {products.length} products
         </span>
 
@@ -99,7 +136,7 @@ export default function ProductPage() {
       </div>
 
       {/* TABLE */}
-      <div className="bg-white rounded-xl border border-neutral-200 overflow-hidden">
+      <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
         <ProductTable
           products={products}
           onEdit={handleEdit}
@@ -107,12 +144,12 @@ export default function ProductPage() {
         />
       </div>
 
-      {/* Pagination */}
+      {/* PAGINATION */}
       <div className="mt-4 flex justify-center">
         <Pagination page={page} totalPages={totalPages} onChange={setPage} />
       </div>
 
-      {/* Modal */}
+      {/* MODAL */}
       <Modal
         open={showForm}
         onClose={() => setShowForm(false)}
@@ -120,16 +157,39 @@ export default function ProductPage() {
       >
         <ProductForm
           editMode={editMode}
-          name={editItem?.name || ""}
-          description={editItem?.description || ""}
-          price={String(editItem?.price || "")}
-          image={editItem?.image || ""}
-          categoryId={String(editItem?.categoryId || "")}
+          name={name}
+          setName={setName}
+          description={description}
+          setDescription={setDescription}
+          price={price}
+          setPrice={setPrice}
+          image={image}
+          setImage={setImage}
+          categoryId={categoryId}
+          setCategoryId={setCategoryId}
+          stock={stock}
+          setStock={setStock}
           categories={categories}
           fetchCategories={fetchCategories}
           loading={loading}
-          handleSubmit={async (e: any) => {
+          handleSubmit={async (e) => {
             e.preventDefault();
+
+            const payload = {
+              name,
+              price: Number(price),
+              image,
+              categoryId: Number(categoryId),
+              description,
+              stock: Number(stock),
+            };
+
+            await fetch("/api/products", {
+              method: editMode ? "PUT" : "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            });
+
             await fetchProducts();
             setShowForm(false);
           }}
