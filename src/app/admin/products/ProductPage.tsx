@@ -175,20 +175,31 @@ export default function ProductPage() {
           handleSubmit={async (e) => {
             e.preventDefault();
 
+            if (!categoryId) {
+              alert("Please select a category");
+              return;
+            }
+
             const payload = {
               name,
               price: Number(price),
               image,
               categoryId: Number(categoryId),
-              description,
-              stock: Number(stock),
+              description: description || null,
+              stock: stock ? Number(stock) : null,
             };
 
-            await fetch("/api/products", {
+            const res = await fetch("/api/products", {
               method: editMode ? "PUT" : "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(payload),
             });
+
+            if (!res.ok) {
+              const error = await res.json();
+              alert(error.message || "Failed to save product");
+              return;
+            }
 
             await fetchProducts();
             setShowForm(false);
