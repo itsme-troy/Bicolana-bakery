@@ -52,7 +52,7 @@ export default function ProductTable({
               >
                 <td className="px-4 py-3 flex items-center gap-3">
                   <img
-                    src={p.image || "/placeholder.png"}
+                    src={p.image || "/default_product_image.png"}
                     className="h-10 w-10 rounded-md object-cover border"
                   />
                   <span className="font-medium">{p.name}</span>

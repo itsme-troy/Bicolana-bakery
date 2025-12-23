@@ -59,7 +59,7 @@ export default function ProductForm({
     reader.readAsDataURL(file);
   };
 
-  const removeImage = () => setImage("");
+  const removeImage = () => setImage("/default_product_image.png");
 
   const handleCreateCategory = async () => {
     if (!newCategoryName.trim()) return;
@@ -174,13 +174,14 @@ export default function ProductForm({
           <label
             htmlFor="image-upload"
             className={`
-              relative flex h-44 w-full cursor-pointer flex-col items-center justify-center
-              rounded-lg border-2 border-dashed transition
-              ${
-                image
-                  ? "border-transparent"
-                  : "border-neutral-300 hover:border-orange-500 hover:bg-orange-50/30"
-              }
+                relative flex h-40 w-full cursor-pointer items-center justify-center
+                overflow-hidden rounded-lg border-2 border-dashed transition
+                bg-neutral-50
+                ${
+                  image
+                    ? "border-transparent"
+                    : "border-neutral-300 hover:border-orange-500 hover:bg-orange-50/30"
+                }
             `}
           >
             <input
@@ -207,7 +208,7 @@ export default function ProductForm({
               <img
                 src={image}
                 alt="Preview"
-                className="absolute inset-0 h-full w-full rounded-lg object-cover"
+                className="absolute inset-0 h-full w-full object-contain object-cover bg-neutral-100"
               />
             )}
           </label>

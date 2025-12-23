@@ -22,27 +22,42 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
 }
 
 
-// PUT (UPDATE)
+
+// =========================
+// PUT (UPDATE PRODUCT)
+// =========================
 export async function PUT(
   req: Request,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
-  const id = parseInt(context.params.id);
+  const id = Number(params.id);
 
   try {
     const data = await req.json();
 
+    const image =
+      data.image && typeof data.image === "string" && data.image.trim() !== ""
+        ? data.image
+        : "/placeholder.png";
+
     const updated = await prisma.product.update({
       where: { id },
-      data,
+      data: {
+        name: data.name,
+        description: data.description || null,
+        price: Number(data.price),
+        image, // ✅ ENFORCED DEFAULT
+        categoryId: Number(data.categoryId),
+        stock: data.stock !== null ? Number(data.stock) : null,
+      },
     });
 
     return NextResponse.json(updated);
   } catch (err) {
+    console.error("PUT /api/products/[id] ERROR:", err);
     return NextResponse.json(
       { error: "Failed to update product" },
       { status: 500 }
     );
   }
 }
-

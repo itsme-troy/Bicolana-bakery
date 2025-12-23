@@ -53,12 +53,17 @@ export async function POST(req: Request) {
       );
     }
 
+    const image =
+    data.image && typeof data.image === "string" && data.image.trim() !== ""
+    ? data.image
+    : "/default_product_image.png";
+    
     const product = await prisma.product.create({
       data: {
         name: data.name,
         description: data.description,
         price: parseFloat(data.price),
-        image: data.image,
+        image: image && image.trim() !== "" ? image : "/default_product_image.png",
         categoryId: Number(data.categoryId),
       },
     });

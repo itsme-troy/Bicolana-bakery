@@ -51,14 +51,13 @@ model Product {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   orderItems  OrderProduct[]
-
+  stock       Int?   
+  
   // Each product belongs to ONE category
   categoryId Int?  // allows NULL
-  category    Category?  @relation( // product my have no category
-    fields: [categoryId],
-    references: [id], 
-    onDelete: SetNull
-  )
+
+  // product my have no category
+  category    Category? @relation(fields: [categoryId], references: [id])
 }
 
 model Order {

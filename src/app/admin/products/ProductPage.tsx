@@ -45,7 +45,7 @@ export default function ProductPage() {
 
     setName("");
     setPrice("");
-    setImage("");
+    setImage("/default_product_image.png");
     setCategoryId("");
     setDescription("");
     setStock("");
