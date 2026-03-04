@@ -1,4 +1,6 @@
 "use client";
+import Link from "next/link";
+
 import { useState } from "react";
 import Image from "next/image";
 import { Home, ShoppingCart, Info, Phone, LogIn, Menu, X } from "lucide-react";
@@ -20,8 +22,7 @@ export default function Navbar() {
           </button>
 
           {/* Logo */}
-
-          <a href="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
             <Image
               src="/Bakery-logo.svg"
               alt="Bicolana's Bakery Logo"
@@ -31,7 +32,7 @@ export default function Navbar() {
               priority
               className="object-contain scale-180"
             />
-          </a>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex gap-6 text-sm">
