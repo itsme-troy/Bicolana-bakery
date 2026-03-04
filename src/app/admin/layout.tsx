@@ -13,7 +13,7 @@ export default function AdminLayout({
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   return (
-    <div className="flex bg-neutral-100 min-h-screen">
+    <div className="flex bg-neutral-100 min-h-screen text-gray-900">
       <Sidebar
         isCollapsed={isCollapsed}
         setIsCollapsed={setIsCollapsed}
@@ -53,7 +53,9 @@ export default function AdminLayout({
           </button>
         </header>
 
-        <main className="p-6">{children}</main>
+        <main className="p-6 bg-neutral-100 text-gray-900 min-h-[calc(100vh-4rem)]">
+          {children}
+        </main>
       </div>
     </div>
   );

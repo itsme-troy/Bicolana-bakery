@@ -25,7 +25,7 @@ export default function UserPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <nav className="text-sm text-neutral-500 mb-1">Dashboard / Users</nav>
-          <h1 className="text-3xl font-bold">User Management</h1>
+          <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
         </div>
 
         <div className="flex items-center gap-3">
@@ -33,7 +33,7 @@ export default function UserPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search..."
-            className="border rounded px-3 py-2"
+            className="border rounded px-3 py-2 text-gray-900"
           />
           <button
             onClick={() => {
