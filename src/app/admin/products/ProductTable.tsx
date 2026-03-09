@@ -26,10 +26,10 @@ export default function ProductTable({
       <thead className="bg-neutral-50 text-neutral-600 border-b">
         <tr>
           <th className="px-4 py-3 text-left font-medium">Product</th>
-          <th className="px-4 py-3 font-medium">Category</th>
-          <th className="px-4 py-3 font-medium">Price</th>
-          <th className="px-4 py-3 font-medium">Stock</th>
-          <th className="px-4 py-3 font-medium">Status</th>
+          <th className="px-4 py-3 text-left font-medium">Category</th>
+          <th className="px-4 py-3 text-left font-medium">Price</th>
+          <th className="px-4 py-3 text-left font-medium">Stock</th>
+          <th className="px-4 py-3 text-left font-medium">Status</th>
           <th className="px-4 py-3 text-center font-medium">Actions</th>
         </tr>
       </thead>
@@ -50,15 +50,17 @@ export default function ProductTable({
                 key={p.id}
                 className="border-b last:border-none hover:bg-neutral-50"
               >
-                <td className="px-4 py-3 flex items-center gap-3">
-                  <img
-                    src={p.image || "/default_product_image.png"}
-                    onError={(e) => {
-                      e.currentTarget.src = "/default_product_image.png";
-                    }}
-                    className="h-10 w-10 rounded-md object-cover border"
-                  />
-                  <span className="font-medium">{p.name}</span>
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={p.image || "/default_product_image.png"}
+                      onError={(e) => {
+                        e.currentTarget.src = "/default_product_image.png";
+                      }}
+                      className="h-10 w-10 rounded-md object-cover border"
+                    />
+                    <span className="font-medium">{p.name}</span>
+                  </div>
                 </td>
 
                 <td className="px-4 py-3">{p.category?.name}</td>
