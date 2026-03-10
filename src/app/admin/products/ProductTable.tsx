@@ -13,8 +13,8 @@ export default function ProductTable({
   onEdit,
   onDelete,
 }: ProductTableProps) {
-  const getStatus = (stock: number) => {
-    if (stock === 0)
+  const getStatus = (stock?: number) => {
+    if (!stock || stock === 0)
       return { label: "Out of Stock", color: "bg-red-100 text-red-600" };
     if (stock < 10)
       return { label: "Low Stock", color: "bg-yellow-100 text-yellow-700" };
@@ -67,7 +67,7 @@ export default function ProductTable({
                 <td className="px-4 py-3">
                   ₱{Number(p.price).toLocaleString()}
                 </td>
-                <td className="px-4 py-3">{p.stock}</td>
+                <td className="px-4 py-3">{p.stock ?? 0}</td>
 
                 <td className="px-4 py-3">
                   <span
