@@ -36,6 +36,7 @@ export default function ProductPage() {
   const [categoryId, setCategoryId] = useState("");
   const [description, setDescription] = useState("");
   const [stock, setStock] = useState("");
+  const [productId, setProductId] = useState<number | null>(null);
 
   /* ---------------------------
      CREATE PRODUCT
@@ -59,6 +60,8 @@ export default function ProductPage() {
   const handleEdit = (product: any) => {
     setEditMode(true);
 
+    setProductId(product.id); // ⭐ ADD THIS
+
     setName(product.name || "");
     setPrice(String(product.price || ""));
     setImage(product.image || "");
@@ -68,7 +71,6 @@ export default function ProductPage() {
 
     setShowForm(true);
   };
-
   /* ---------------------------
      DELETE PRODUCT
   --------------------------- */
@@ -189,11 +191,14 @@ export default function ProductPage() {
               stock: stock ? Number(stock) : null,
             };
 
-            const res = await fetch("/api/products", {
-              method: editMode ? "PUT" : "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(payload),
-            });
+            const res = await fetch(
+              editMode ? `/api/products/${productId}` : "/api/products",
+              {
+                method: editMode ? "PUT" : "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+              },
+            );
 
             if (!res.ok) {
               const error = await res.json();

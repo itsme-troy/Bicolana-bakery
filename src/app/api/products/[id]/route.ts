@@ -28,9 +28,10 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
 // =========================
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const id = Number(params.id);
+  const { id } = await params;
+  const productId = Number(id);
 
   try {
     const data = await req.json();
