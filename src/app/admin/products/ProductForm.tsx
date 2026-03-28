@@ -146,8 +146,21 @@ export default function ProductForm({
         <label className="block text-sm font-medium mb-1">Price (₱)</label>
         <input
           type="number"
+          min="0"
           value={price}
-          onChange={(e) => setPrice(e.target.value)}
+          onChange={(e) => {
+            const val = e.target.value;
+
+            // allow empty (so user can delete)
+            if (val === "") {
+              setPrice("");
+              return;
+            }
+
+            // convert & clamp
+            const num = Math.max(0, Number(val));
+            setPrice(String(num));
+          }}
           className="w-full rounded-lg border px-3 py-2 focus:ring-2 focus:ring-orange-500"
           required
         />
@@ -159,8 +172,19 @@ export default function ProductForm({
           <label className="block text-sm font-medium mb-1">Stock</label>
           <input
             type="number"
+            min="0"
             value={stock}
-            onChange={(e) => setStock(e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value;
+
+              if (val === "") {
+                setStock("");
+                return;
+              }
+
+              const num = Math.max(0, Number(val));
+              setStock(String(num));
+            }}
             className="w-full rounded-lg border px-3 py-2"
           />
         </div>
@@ -196,11 +220,20 @@ export default function ProductForm({
                 </span>
               </>
             ) : (
-              <img
-                src={image}
-                alt="Preview"
-                className="h-full w-full object-contain rounded-lg bg-neutral-100"
-              />
+              <div className="flex flex-col items-center justify-center h-40 w-full rounded-lg bg-neutral-100">
+                <img
+                  src={image}
+                  alt="Preview"
+                  className="max-h-20 object-contain"
+                />
+
+                {/* 👇 ADD THIS */}
+                {image === "/default_product_image.png" && (
+                  <p className="mt-2 text-xs text-neutral-400">
+                    Drag & drop or click to upload
+                  </p>
+                )}
+              </div>
             )}
           </label>
 

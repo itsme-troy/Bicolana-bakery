@@ -181,7 +181,15 @@ export default function ProductPage() {
               alert("Please select a category");
               return;
             }
+            if (Number(price) < 0) {
+              alert("Price cannot be negative");
+              return;
+            }
 
+            if (stock && Number(stock) < 0) {
+              alert("Stock cannot be negative");
+              return;
+            }
             const payload = {
               name,
               price: Number(price),
