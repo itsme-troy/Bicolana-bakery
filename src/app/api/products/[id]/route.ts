@@ -42,7 +42,7 @@ export async function PUT(
         : "/placeholder.png";
 
     const updated = await prisma.product.update({
-      where: { id },
+      where: { id:productId },
       data: {
         name: data.name,
         description: data.description || null,

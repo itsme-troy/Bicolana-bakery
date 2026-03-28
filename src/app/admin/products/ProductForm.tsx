@@ -173,16 +173,7 @@ export default function ProductForm({
         <div className="relative">
           <label
             htmlFor="image-upload"
-            className={`
-                relative flex h-40 w-full cursor-pointer items-center justify-center
-                overflow-hidden rounded-lg border-2 border-dashed transition
-                bg-neutral-50
-                ${
-                  image
-                    ? "border-transparent"
-                    : "border-neutral-300 hover:border-orange-500 hover:bg-orange-50/30"
-                }
-            `}
+            className="relative flex h-40 w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg border-2 border-dashed bg-neutral-50"
           >
             <input
               id="image-upload"
@@ -208,7 +199,7 @@ export default function ProductForm({
               <img
                 src={image}
                 alt="Preview"
-                className="absolute inset-0 h-full w-full object-contain object-cover bg-neutral-100"
+                className="h-full w-full object-contain rounded-lg bg-neutral-100"
               />
             )}
           </label>
@@ -245,8 +236,8 @@ export default function ProductForm({
               ? "Updating…"
               : "Adding…"
             : editMode
-            ? "Update Product"
-            : "Add Product"}
+              ? "Update Product"
+              : "Add Product"}
         </button>
       </div>
     </form>
