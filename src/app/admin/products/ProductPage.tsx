@@ -7,6 +7,7 @@ import ProductTable from "./ProductTable";
 import ProductForm from "./ProductForm";
 import Modal from "../components/Modal";
 import Pagination from "../components/Pagination";
+import toast from "react-hot-toast";
 
 export default function ProductPage() {
   const {
@@ -37,6 +38,7 @@ export default function ProductPage() {
   const [description, setDescription] = useState("");
   const [stock, setStock] = useState("");
   const [productId, setProductId] = useState<number | null>(null);
+  const [saving, setSaving] = useState(false);
 
   /* ---------------------------
      CREATE PRODUCT
@@ -76,8 +78,27 @@ export default function ProductPage() {
   --------------------------- */
   const handleDelete = async (id: number) => {
     if (!confirm("Delete this product?")) return;
-    await fetch(`/api/products/${id}`, { method: "DELETE" });
-    fetchProducts();
+
+    const loadingToast = toast.loading("Deleting product...");
+
+    try {
+      const res = await fetch(`/api/products/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || "Failed to delete product");
+      }
+
+      await fetchProducts();
+
+      toast.dismiss(loadingToast);
+      toast.success("Product deleted successfully");
+    } catch (err: any) {
+      toast.dismiss(loadingToast);
+      toast.error(err.message);
+    }
   };
 
   /* ---------------------------
@@ -173,23 +194,25 @@ export default function ProductPage() {
           setStock={setStock}
           categories={categories}
           fetchCategories={fetchCategories}
-          loading={loading}
+          loading={saving}
           handleSubmit={async (e) => {
             e.preventDefault();
 
             if (!categoryId) {
-              alert("Please select a category");
+              toast.error("Please select a category");
               return;
             }
+
             if (Number(price) < 0) {
-              alert("Price cannot be negative");
+              toast.error("Price cannot be negative");
               return;
             }
 
             if (stock && Number(stock) < 0) {
-              alert("Stock cannot be negative");
+              toast.error("Stock cannot be negative");
               return;
             }
+
             const payload = {
               name,
               price: Number(price),
@@ -199,23 +222,40 @@ export default function ProductPage() {
               stock: stock ? Number(stock) : null,
             };
 
-            const res = await fetch(
-              editMode ? `/api/products/${productId}` : "/api/products",
-              {
-                method: editMode ? "PUT" : "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-              },
-            );
+            setSaving(true);
 
-            if (!res.ok) {
-              const error = await res.json();
-              alert(error.message || "Failed to save product");
-              return;
+            const loadingToast = toast.loading("Saving product...");
+
+            try {
+              const res = await fetch(
+                editMode ? `/api/products/${productId}` : "/api/products",
+                {
+                  method: editMode ? "PUT" : "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(payload),
+                },
+              );
+
+              if (!res.ok) {
+                const error = await res.json();
+                throw new Error(error.message || "Failed to save product");
+              }
+
+              await fetchProducts();
+              setShowForm(false);
+
+              toast.dismiss(loadingToast);
+              toast.success(
+                editMode
+                  ? "Product updated successfully"
+                  : "Product added successfully",
+              );
+            } catch (err: any) {
+              toast.dismiss(loadingToast);
+              toast.error(err.message);
+            } finally {
+              setSaving(false);
             }
-
-            await fetchProducts();
-            setShowForm(false);
           }}
         />
       </Modal>
