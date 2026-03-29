@@ -1,17 +1,21 @@
-// app/api/categories/route.ts  (Next 13 route handler style)
-import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma"; // your prisma client
+let categories = [
+  { id: 1, name: "Cakes" },
+  { id: 2, name: "Bread" },
+];
 
 export async function GET() {
-  const cats = await prisma.category.findMany({ orderBy: { name: "asc" } });
-  return NextResponse.json(cats);
+  return Response.json(categories);
 }
 
 export async function POST(req: Request) {
-  const { name } = await req.json();
-  if (!name || !name.trim()) {
-    return NextResponse.json({ error: "Name required" }, { status: 400 });
-  }
-  const created = await prisma.category.create({ data: { name: name.trim() } });
-  return NextResponse.json(created, { status: 201 });
+  const body = await req.json();
+
+  const newCategory = {
+    id: Date.now(),
+    name: body.name,
+  };
+
+  categories.push(newCategory);
+
+  return Response.json(newCategory);
 }
