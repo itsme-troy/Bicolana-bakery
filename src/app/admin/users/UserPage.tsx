@@ -15,8 +15,17 @@ export default function UserPage() {
   const [showForm, setShowForm] = useState(false);
   const [editUser, setEditUser] = useState<any | null>(null);
 
+  const [userName, setUserName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [userPassword, setUserPassword] = useState("");
+  const [userRole, setUserRole] = useState("customer");
+
   const handleEdit = (u: any) => {
     setEditUser(u);
+    setUserName(u.name);
+    setUserEmail(u.email);
+    setUserRole(u.role);
+    setUserPassword("");
     setShowForm(true);
   };
 
@@ -66,16 +75,28 @@ export default function UserPage() {
         >
           <UserForm
             editUserMode={!!editUser}
-            userName={editUser?.name || ""}
-            userEmail={editUser?.email || ""}
-            userPassword={""}
-            userRole={editUser?.role || "customer"}
-            setUserName={() => {}}
-            setUserEmail={() => {}}
-            setUserPassword={() => {}}
-            setUserRole={() => {}}
+            userName={userName}
+            userEmail={userEmail}
+            userPassword={userPassword}
+            userRole={userRole}
+            setUserName={setUserName}
+            setUserEmail={setUserEmail}
+            setUserPassword={setUserPassword}
+            setUserRole={setUserRole}
             handleUserSubmit={async (e: any) => {
               e.preventDefault();
+
+              await fetch("/api/users", {
+                method: editUser ? "PUT" : "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  name: userName,
+                  email: userEmail,
+                  password: userPassword,
+                  role: userRole,
+                }),
+              });
+
               await fetchUsers();
               setShowForm(false);
             }}
