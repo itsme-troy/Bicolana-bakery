@@ -26,12 +26,12 @@ export async function POST(req: Request) {
     }
 
     const user = await prisma.user.create({
-      data: {
-        name: body.name,
-        email: body.email,
-        password: body.password, // Hashing optional for now
-        role: body.role || "customer",
-      },
+    data: {
+    name: body.name,
+    email: body.email,
+    role: body.role,
+    ...(body.password && { password: body.password }),
+    },
     });
 
     return NextResponse.json(user);

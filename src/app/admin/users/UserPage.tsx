@@ -7,6 +7,7 @@ import UserTable from "./UserTable";
 import UserForm from "./UserForm";
 import Drawer from "../components/Drawer";
 import Pagination from "../components/Pagination";
+import toast from "react-hot-toast";
 
 export default function UserPage() {
   const { users, fetchUsers, search, setSearch, page, setPage, totalPages } =
@@ -61,8 +62,18 @@ export default function UserPage() {
         handleEditUser={handleEdit}
         handleDeleteUser={async (id: number) => {
           if (!confirm("Delete user?")) return;
-          await fetch(`/api/users/${id}`, { method: "DELETE" });
-          fetchUsers();
+
+          try {
+            const res = await fetch(`/api/users/${id}`, { method: "DELETE" });
+            const data = await res.json();
+
+            if (!res.ok) throw new Error(data.error);
+
+            toast.success("User deleted");
+            fetchUsers();
+          } catch (err: any) {
+            toast.error(err.message);
+          }
         }}
       />
 
@@ -86,19 +97,35 @@ export default function UserPage() {
             handleUserSubmit={async (e: any) => {
               e.preventDefault();
 
-              await fetch("/api/users", {
-                method: editUser ? "PUT" : "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  name: userName,
-                  email: userEmail,
-                  password: userPassword,
-                  role: userRole,
-                }),
-              });
+              try {
+                const res = await fetch(
+                  editUser ? `/api/users/${editUser.id}` : "/api/users",
+                  {
+                    method: editUser ? "PUT" : "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      name: userName,
+                      email: userEmail,
+                      password: userPassword,
+                      role: userRole,
+                    }),
+                  },
+                );
 
-              await fetchUsers();
-              setShowForm(false);
+                const data = await res.json(); // ✅ ADD THIS
+
+                if (!res.ok) {
+                  console.error("SERVER ERROR:", data); // ✅ ADD THIS
+                  throw new Error(data.error || "Request failed");
+                }
+
+                toast.success(editUser ? "User updated" : "User created");
+
+                await fetchUsers();
+                setShowForm(false);
+              } catch (err: any) {
+                toast.error(err.message); // ✅ now shows real error
+              }
             }}
           />
         </Drawer>

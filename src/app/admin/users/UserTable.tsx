@@ -45,7 +45,7 @@ export default function UserTable({
                     : "—"}
                 </td>
                 <td className="p-3 text-center">
-                  <div className="flex justify-center gap-3 opacity-0 group-hover:opacity-100 transition">
+                  <div className="flex justify-center gap-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition">
                     <button onClick={() => handleEditUser(u)} title="Edit">
                       <Edit3 size={18} />
                     </button>
