@@ -1,11 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react"; //
 import { useOrders } from "./useOrders";
 import OrderTable from "./OrderTable";
 import OrderForm from "./OrderForm";
 import Drawer from "../components/Drawer";
 import Pagination from "../components/Pagination";
+
+type CartItem = {
+  productId: number;
+  name: string;
+  price: number;
+  quantity: number;
+};
 
 export default function OrderPage() {
   const {
@@ -22,7 +29,57 @@ export default function OrderPage() {
 
   const [showForm, setShowForm] = useState(false);
   const [editOrder, setEditOrder] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [selectedUser, setSelectedUser] = useState("");
+  const [status, setStatus] = useState("pending");
 
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!selectedUser || cart.length === 0) {
+      alert("Select customer and at least 1 product");
+      return;
+    }
+
+    await fetch("/api/orders", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: selectedUser,
+        items: cart,
+        status,
+      }),
+    });
+
+    // reset
+    setCart([]);
+    setSelectedUser("");
+    setStatus("pending");
+
+    setShowForm(false);
+    fetchOrders();
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const [usersRes, productsRes] = await Promise.all([
+        fetch("/api/users"),
+        fetch("/api/products"),
+      ]);
+
+      const usersData = await usersRes.json();
+      const productsData = await productsRes.json();
+
+      setUsers(usersData);
+      setProducts(productsData);
+    };
+
+    fetchData();
+  }, []);
   return (
     <>
       <div className="flex justify-between mb-5">
@@ -77,15 +134,15 @@ export default function OrderPage() {
       {showForm && (
         <Drawer onClose={() => setShowForm(false)} title="Order Form">
           <OrderForm
-            users={[]}
-            products={[]}
-            selectedUser=""
-            selectedProducts={[]}
-            status="pending"
-            setSelectedUser={() => {}}
-            setSelectedProducts={() => {}}
-            setStatus={() => {}}
-            handleOrderSubmit={fetchOrders}
+            users={users}
+            products={products}
+            selectedUser={selectedUser}
+            status={status}
+            setSelectedUser={setSelectedUser}
+            setStatus={setStatus}
+            cart={cart}
+            setCart={setCart}
+            handleOrderSubmit={handleSubmit}
           />
         </Drawer>
       )}
