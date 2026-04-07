@@ -124,6 +124,7 @@ export default function OrderPage() {
         orders={orders}
         handleEditOrder={(o) => {
           setEditOrder(o);
+          setPage(1); // reset page after adding order
           setShowForm(true);
         }}
         handleDeleteOrder={() => {}}

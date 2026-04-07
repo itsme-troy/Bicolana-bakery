@@ -10,11 +10,11 @@ import prisma from "@/lib/prisma";
 // ✅ CREATE new order
 export async function POST(req: Request) {
   try {
-    const { userId, productIds, status } = await req.json();
+    const { userId, items, status } = await req.json();
 
-    if (!userId || !productIds || !Array.isArray(productIds) || productIds.length === 0) {
+    if (!userId || !items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
-        { error: "User ID and at least one product ID are required." },
+        { error: "User ID and at least one item are required." },
         { status: 400 }
       );
     }
@@ -24,9 +24,9 @@ export async function POST(req: Request) {
         userId: parseInt(userId),
         status: status || "pending",
         orderProducts: {
-          create: productIds.map((pid: string) => ({
-            productId: parseInt(pid),
-            quantity: 1,
+          create: items.map((item: any) => ({
+            productId: parseInt(item.productId),
+            quantity: item.quantity || 1,
           })),
         },
       },
@@ -41,7 +41,10 @@ export async function POST(req: Request) {
     return NextResponse.json(order);
   } catch (error) {
     console.error("Error creating order:", error);
-    return NextResponse.json({ error: "Failed to create order" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create order" },
+      { status: 500 }
+    );
   }
 }
 

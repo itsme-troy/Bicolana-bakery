@@ -5,39 +5,46 @@ import { useState, useEffect } from "react";
 export function useOrders() {
   const [orders, setOrders] = useState([]);
   const [page, setPage] = useState(1);
-  const perPage = 5;
 
   const [statusFilter, setStatusFilter] = useState("all");
   const [search, setSearch] = useState("");
 
+  const [totalPages, setTotalPages] = useState(1);
+
   const fetchOrders = async () => {
-    const res = await fetch(`/api/orders?page=${page}&limit=${perPage}`);
+    const res = await fetch(
+      `/api/orders?page=${page}&limit=5`
+    );
+
     const data = await res.json();
-    setOrders(data.orders);
+
+    let filtered = data.orders;
+
+    // ✅ apply filters HERE (not before pagination)
+    if (statusFilter !== "all") {
+      filtered = filtered.filter((o: any) => o.status === statusFilter);
+    }
+
+    if (search) {
+      filtered = filtered.filter((o: any) =>
+        o.id.toString().includes(search.toLowerCase()) ||
+        o.user?.name?.toLowerCase().includes(search.toLowerCase()) ||
+        o.products.some((p: any) =>
+          p.name.toLowerCase().includes(search.toLowerCase())
+        )
+      );
+    }
+
+    setOrders(filtered);
+    setTotalPages(data.totalPages); // ✅ use backend pagination
   };
 
   useEffect(() => {
     fetchOrders();
-  }, [page]);
-
-  const filtered = orders
-    .filter((o) => (statusFilter === "all" ? true : o.status === statusFilter))
-    .filter(
-      (o) =>
-        o.id.toString().includes(search.toLowerCase()) ||
-        o.user?.name?.toLowerCase().includes(search.toLowerCase()) ||
-        o.products.some((p) =>
-          p.name.toLowerCase().includes(search.toLowerCase())
-        )
-    );
-
-  // ← FIX: correct page count
-  const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
-
-  const paginated = filtered.slice((page - 1) * perPage, page * perPage);
+  }, [page, statusFilter, search]);
 
   return {
-    orders: paginated,
+    orders,
     fetchOrders,
     page,
     setPage,
