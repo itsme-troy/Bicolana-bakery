@@ -43,27 +43,46 @@ export default function OrderPage() {
       return;
     }
 
-    await fetch("/api/orders", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        userId: selectedUser,
-        items: cart,
-        status,
-      }),
-    });
+    // ✅ decide if CREATE or UPDATE
+    if (editOrder) {
+      // 🔁 UPDATE existing order
+      await fetch(`/api/orders/${editOrder.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: selectedUser,
+          items: cart,
+          status,
+        }),
+      });
+    } else {
+      // ➕ CREATE new order
+      await fetch("/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: selectedUser,
+          items: cart,
+          status,
+        }),
+      });
+    }
 
-    // reset
+    // ✅ reset form after save/update
     setCart([]);
     setSelectedUser("");
     setStatus("pending");
+    setEditOrder(null);
 
     setShowForm(false);
+
+    // ✅ refresh table
     fetchOrders();
   };
-
   useEffect(() => {
     const fetchData = async () => {
       const [usersRes, productsRes] = await Promise.all([
@@ -96,13 +115,14 @@ export default function OrderPage() {
 
           <button
             onClick={() => {
-              setEditOrder(null);
-              // reset form
+              setEditOrder(null); // clear edit mode
+
+              // ✅ reset form fields
               setSelectedUser("");
               setStatus("pending");
               setCart([]);
 
-              setShowForm(true);
+              setShowForm(true); // open empty form
             }}
             className="bg-orange-600 text-white px-4 py-2 rounded"
           >
@@ -128,10 +148,15 @@ export default function OrderPage() {
       <OrderTable
         orders={orders}
         handleEditOrder={(o) => {
-          setEditOrder(o);
-          setPage(1); // reset page after adding order
-          setShowForm(true);
-          setSelectedUser(o.userId.toString());
+          setEditOrder(o); // store current order being edited
+
+          setPage(1); // optional: reset pagination
+
+          // ✅ populate form fields
+          setSelectedUser(o.userId.toString()); // set selected customer
+          setStatus(o.status); // set order status
+
+          // ✅ convert backend products → cart format
           setCart(
             o.products.map((p: any) => ({
               productId: p.id,
@@ -141,7 +166,7 @@ export default function OrderPage() {
             })),
           );
 
-          setShowForm(true);
+          setShowForm(true); // open drawer AFTER data is ready
         }}
         handleDeleteOrder={() => {}}
       />
