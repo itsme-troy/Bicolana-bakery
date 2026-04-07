@@ -97,6 +97,11 @@ export default function OrderPage() {
           <button
             onClick={() => {
               setEditOrder(null);
+              // reset form
+              setSelectedUser("");
+              setStatus("pending");
+              setCart([]);
+
               setShowForm(true);
             }}
             className="bg-orange-600 text-white px-4 py-2 rounded"
@@ -126,6 +131,17 @@ export default function OrderPage() {
           setEditOrder(o);
           setPage(1); // reset page after adding order
           setShowForm(true);
+          setSelectedUser(o.userId.toString());
+          setCart(
+            o.products.map((p: any) => ({
+              productId: p.id,
+              name: p.name,
+              price: p.price,
+              quantity: p.quantity,
+            })),
+          );
+
+          setShowForm(true);
         }}
         handleDeleteOrder={() => {}}
       />
@@ -144,6 +160,7 @@ export default function OrderPage() {
             cart={cart}
             setCart={setCart}
             handleOrderSubmit={handleSubmit}
+            editMode={!!editOrder}
           />
         </Drawer>
       )}
