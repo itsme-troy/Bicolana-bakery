@@ -27,6 +27,12 @@ export default function OrderPage() {
     setStatusFilter,
   } = useOrders();
 
+  //  toast notification state
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
+
   const [showForm, setShowForm] = useState(false);
   const [editOrder, setEditOrder] = useState(null);
   const [users, setUsers] = useState([]);
@@ -188,6 +194,19 @@ export default function OrderPage() {
             editMode={!!editOrder}
           />
         </Drawer>
+      )}
+
+      {/* ✅ Toast Notification */}
+      {toast && (
+        <div className="fixed top-5 right-5 z-50">
+          <div
+            className={`px-4 py-3 rounded-lg shadow-lg text-white animate-fadeIn ${
+              toast.type === "success" ? "bg-green-600" : "bg-red-600"
+            }`}
+          >
+            {toast.message}
+          </div>
+        </div>
       )}
     </>
   );

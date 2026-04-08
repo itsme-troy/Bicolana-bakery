@@ -39,14 +39,17 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json(order);
+
   } catch (error) {
     console.error("Error creating order:", error);
+
     return NextResponse.json(
       { error: "Failed to create order" },
       { status: 500 }
     );
   }
 }
+ 
 
 // ✅ GET all orders
 export async function GET(req: Request) {
