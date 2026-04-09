@@ -34,7 +34,7 @@ export default function CategoryForm({ onSuccess, editingCategory }: any) {
     }
 
     setName("");
-    onSuccess();
+    onSuccess("Category saved successfully!");
   };
 
   return (

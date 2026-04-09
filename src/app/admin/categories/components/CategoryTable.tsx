@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-export default function CategoryTable({ onEdit }: any) {
+export default function CategoryTable({ onEdit, onDeleteSuccess  }: any) {
   const [categories, setCategories] = useState([]);
 
   const fetchCategories = async () => {
@@ -11,16 +11,17 @@ export default function CategoryTable({ onEdit }: any) {
     setCategories(data);
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm("Delete this category?")) return;
+const handleDelete = async (id: number) => {
+  if (!confirm("Delete this category?")) return;
 
-    await fetch(`/api/categories/${id}`, {
-      method: "DELETE",
-    });
+  await fetch(`/api/categories/${id}`, {
+    method: "DELETE",
+  });
 
-    fetchCategories();
-  };
+  fetchCategories();
 
+  onDeleteSuccess("Category deleted successfully!");
+};
   useEffect(() => {
     fetchCategories();
   }, []);
@@ -56,7 +57,8 @@ export default function CategoryTable({ onEdit }: any) {
           categories.map((cat: any) => (
             <tr
               key={cat.id}
-className="border-t odd:bg-white even:bg-gray-100 hover:bg-orange-50 transition"            >
+            className="border-t odd:bg-white even:bg-gray-50 hover:bg-orange-50/50 transition"
+            >
               <td className="px-5 py-4 font-medium text-gray-800">
                 {cat.name}
               </td>
