@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-export default function CategoryTable({ onEdit, onDeleteSuccess  }: any) {
+export default function CategoryTable({ onDeleteSuccess  }: any) {
   const [categories, setCategories] = useState([]);
 
   const fetchCategories = async () => {
@@ -10,6 +10,9 @@ export default function CategoryTable({ onEdit, onDeleteSuccess  }: any) {
     const data = await res.json();
     setCategories(data);
   };
+  const [showForm, setShowForm] = useState(false);
+const [name, setName] = useState("");
+const [editingCategory, setEditingCategory] = useState<any>(null);
 
 const handleDelete = async (id: number) => {
   if (!confirm("Delete this category?")) return;
@@ -18,7 +21,49 @@ const handleDelete = async (id: number) => {
     method: "DELETE",
   });
 
-  fetchCategories();
+  fetchCategories();{showForm && (
+  <div className="p-4 border-b bg-gray-50">
+    <form
+      onSubmit={async (e) => {
+        e.preventDefault();
+
+        if (!name.trim()) {
+          alert("Category name is required");
+          return;
+        }
+
+        if (editingCategory) {
+          await fetch(`/api/categories/${editingCategory.id}`, {
+            method: "PUT",
+            body: JSON.stringify({ name }),
+          });
+        } else {
+          await fetch("/api/categories", {
+            method: "POST",
+            body: JSON.stringify({ name }),
+          });
+        }
+
+        setName("");
+        setShowForm(false);
+        setEditingCategory(null);
+        fetchCategories();
+      }}
+      className="flex gap-2"
+    >
+      <input
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="e.g. Cakes, Bread"
+        className="flex-1 border px-3 py-2 rounded-lg"
+      />
+
+      <button className="bg-green-600 text-white px-4 rounded-lg">
+        {editingCategory ? "Update" : "Add"}
+      </button>
+    </form>
+  </div>
+)}
 
   onDeleteSuccess("Category deleted successfully!");
 };
@@ -29,12 +74,65 @@ const handleDelete = async (id: number) => {
   return (
   <div className="bg-white border border-neutral-200 rounded-xl shadow-sm overflow-hidden">
     {/* HEADER */}
-    <div className="px-5 py-4 border-b">
-      <h2 className="font-semibold text-gray-800">
-        Category List
-      </h2>
-    </div>
+   <div className="px-5 py-4 border-b flex justify-between items-center">
+  <h2 className="font-semibold text-gray-800">
+    Category List
+  </h2>
 
+  <button
+    onClick={() => {
+      setEditingCategory(null);
+      setShowForm((prev) => !prev);
+    }}
+    className="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-500"
+  >
+    + Add Category
+  </button>
+</div>
+
+{showForm && (
+  <div className="p-4 border-b bg-gray-50">
+    <form
+      onSubmit={async (e) => {
+        e.preventDefault();
+
+        if (!name.trim()) {
+          alert("Category name is required");
+          return;
+        }
+
+        if (editingCategory) {
+          await fetch(`/api/categories/${editingCategory.id}`, {
+            method: "PUT",
+            body: JSON.stringify({ name }),
+          });
+        } else {
+          await fetch("/api/categories", {
+            method: "POST",
+            body: JSON.stringify({ name }),
+          });
+        }
+
+        setName("");
+        setShowForm(false);
+        setEditingCategory(null);
+        fetchCategories();
+      }}
+      className="flex gap-2"
+    >
+      <input
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="e.g. Cakes, Bread"
+        className="flex-1 border px-3 py-2 rounded-lg"
+      />
+
+      <button className="bg-green-600 text-white px-4 rounded-lg">
+        {editingCategory ? "Update" : "Add"}
+      </button>
+    </form>
+  </div>
+)}
     <table className="w-full text-sm">
       <thead className="bg-gray-50 text-gray-600 uppercase text-xs">
         <tr>
@@ -65,12 +163,16 @@ const handleDelete = async (id: number) => {
 
               <td className="px-5 py-4">
                 <div className="flex justify-center gap-2">
-                  <button
-                    onClick={() => onEdit(cat)}
-                    className="px-3 py-1.5 text-sm rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
-                  >
-                    Edit
-                  </button>
+               <button
+  onClick={() => {
+    setEditingCategory(cat);
+    setName(cat.name);
+    setShowForm(true);
+  }}
+  className="px-3 py-1.5 text-sm rounded-md bg-blue-50 text-blue-600"
+>
+  Edit
+</button>
 
                   <button
                     onClick={() => handleDelete(cat.id)}

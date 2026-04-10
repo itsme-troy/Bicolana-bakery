@@ -1,21 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
-
-import CategoryForm from "./components/CategoryForm";
 import CategoryTable from "./components/CategoryTable";
+
 export default function CategoriesPage() {
   const [refresh, setRefresh] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<any>(null);
-
-  const handleSuccess = (message: string) => {
-    setEditingCategory(null);
-    setRefresh(!refresh);
-
-    setToast({
-      message,
-      type: "success",
-    });
-  };
 
   const [toast, setToast] = useState<{
     message: string;
@@ -39,34 +27,21 @@ export default function CategoriesPage() {
           </h1>
         </div>
 
-        {/* GRID LAYOUT */}
-        <div className="grid md:grid-cols-3 gap-6">
-          {/* FORM */}
-          <div className="md:col-span-1">
-            <CategoryForm
-              onSuccess={handleSuccess}
-              editingCategory={editingCategory}
-            />
-          </div>
-
-          {/* TABLE */}
-          <div className="md:col-span-2">
-            <CategoryTable
-              key={refresh}
-              onEdit={setEditingCategory}
-              onDeleteSuccess={(msg: string) =>
-                setToast({ message: msg, type: "success" })
-              }
-            />
-          </div>
-        </div>
+        {/* ✅ ONLY TABLE NOW */}
+        <CategoryTable
+          key={refresh}
+          onDeleteSuccess={(msg: string) => {
+            setToast({ message: msg, type: "success" });
+            setRefresh((prev) => !prev); // 🔥 refresh after delete
+          }}
+        />
       </div>
 
-      {/* ✅ Toast Notification */}
+      {/* ✅ Toast */}
       {toast && (
         <div className="fixed top-5 right-5 z-50">
           <div
-            className={`px-4 py-3 rounded-lg shadow-lg text-white animate-fadeIn ${
+            className={`px-4 py-3 rounded-lg shadow-lg text-white ${
               toast.type === "success" ? "bg-green-600" : "bg-red-600"
             }`}
           >
