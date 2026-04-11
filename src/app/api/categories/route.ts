@@ -1,7 +1,5 @@
-let categories = [
-  { id: 1, name: "Cakes" },
-  { id: 2, name: "Bread" },
-];
+
+import { categories } from "@/lib/data";
 
 export async function GET() {
   return Response.json(categories);

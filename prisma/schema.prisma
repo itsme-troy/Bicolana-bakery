@@ -57,7 +57,7 @@ model Product {
   categoryId Int?  // allows NULL
 
   // product my have no category
-  category    Category? @relation(fields: [categoryId], references: [id])
+ category    Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 }
 
 model Order {

@@ -19,21 +19,32 @@ export default function CategoryForm({ onSuccess, editingCategory }: any) {
       return;
     }
 
-    if (editingCategory) {
-      // UPDATE
-      await fetch(`/api/categories/${editingCategory.id}`, {
-        method: "PUT",
-        body: JSON.stringify({ name }),
-      });
-    } else {
-      // CREATE
-      await fetch("/api/categories", {
-        method: "POST",
-        body: JSON.stringify({ name }),
-      });
+    // Decide endpoint and method
+    const url = editingCategory
+      ? `/api/categories/${editingCategory.id}`
+      : "/api/categories";
+
+    const method = editingCategory ? "PUT" : "POST";
+
+    // FIX: Add headers so backend can read JSON
+    const res = await fetch(url, {
+      method,
+      headers: {
+        "Content-Type": "application/json", // 🔥 REQUIRED
+      },
+      body: JSON.stringify({ name }),
+    });
+
+    // Optional: check if request succeeded
+    if (!res.ok) {
+      alert("Something went wrong");
+      return;
     }
 
+    // Reset form
     setName("");
+
+    // Trigger refresh + toast
     onSuccess("Category saved successfully!");
   };
 

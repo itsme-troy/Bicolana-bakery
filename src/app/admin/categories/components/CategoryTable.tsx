@@ -21,52 +21,14 @@ const handleDelete = async (id: number) => {
     method: "DELETE",
   });
 
-  fetchCategories();{showForm && (
-  <div className="p-4 border-b bg-gray-50">
-    <form
-      onSubmit={async (e) => {
-        e.preventDefault();
+  // ✅ Refresh table AFTER delete
+  fetchCategories();
 
-        if (!name.trim()) {
-          alert("Category name is required");
-          return;
-        }
-
-        if (editingCategory) {
-          await fetch(`/api/categories/${editingCategory.id}`, {
-            method: "PUT",
-            body: JSON.stringify({ name }),
-          });
-        } else {
-          await fetch("/api/categories", {
-            method: "POST",
-            body: JSON.stringify({ name }),
-          });
-        }
-
-        setName("");
-        setShowForm(false);
-        setEditingCategory(null);
-        fetchCategories();
-      }}
-      className="flex gap-2"
-    >
-      <input
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="e.g. Cakes, Bread"
-        className="flex-1 border px-3 py-2 rounded-lg"
-      />
-
-      <button className="bg-green-600 text-white px-4 rounded-lg">
-        {editingCategory ? "Update" : "Add"}
-      </button>
-    </form>
-  </div>
-)}
-
+  // ✅ Toast
   onDeleteSuccess("Category deleted successfully!");
 };
+
+
   useEffect(() => {
     fetchCategories();
   }, []);
@@ -93,31 +55,37 @@ const handleDelete = async (id: number) => {
 {showForm && (
   <div className="p-4 border-b bg-gray-50">
     <form
-      onSubmit={async (e) => {
+            onSubmit={async (e) => {
         e.preventDefault();
 
         if (!name.trim()) {
-          alert("Category name is required");
-          return;
+            alert("Category name is required");
+            return;
         }
 
-        if (editingCategory) {
-          await fetch(`/api/categories/${editingCategory.id}`, {
-            method: "PUT",
-            body: JSON.stringify({ name }),
-          });
-        } else {
-          await fetch("/api/categories", {
-            method: "POST",
-            body: JSON.stringify({ name }),
-          });
-        }
+        const url = editingCategory
+            ? `/api/categories/${editingCategory.id}`
+            : "/api/categories";
 
+        const method = editingCategory ? "PUT" : "POST";
+
+        // ✅ FIX: Add headers so backend can read JSON
+        await fetch(url, {
+            method,
+            headers: {
+            "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ name }),
+        });
+
+        // ✅ Reset states after submit
         setName("");
         setShowForm(false);
         setEditingCategory(null);
+
+        // ✅ Refresh table
         fetchCategories();
-      }}
+        }}
       className="flex gap-2"
     >
       <input

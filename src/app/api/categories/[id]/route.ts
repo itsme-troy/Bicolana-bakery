@@ -1,15 +1,51 @@
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
+
+// ✅ UPDATE category
 export async function PUT(req: Request, { params }: any) {
-  const body = await req.json();
+  try {
+    const body = await req.json();
+    const id = parseInt(params.id);
 
-  categories = categories.map((cat) =>
-    cat.id == params.id ? { ...cat, name: body.name } : cat
+    // ✅ Update category in database
+    const updatedCategory = await prisma.category.update({
+      where: { id },
+      data: {
+        name: body.name,
+      },
+    });
+
+    return Response.json(updatedCategory);
+  } catch (error: any) {
+  if (error.code === "P2002") {
+    return Response.json(
+      { error: "Category name already exists" },
+      { status: 400 }
+    );
+  }
+
+  return Response.json(
+    { error: "Something went wrong" },
+    { status: 500 }
   );
-
-  return Response.json({ success: true });
+  }
 }
-
 export async function DELETE(req: Request, { params }: any) {
-  categories = categories.filter((cat) => cat.id != params.id);
+  try {
+    const id = parseInt(params.id);
 
-  return Response.json({ success: true });
+    // ✅ Delete category from database
+    await prisma.category.delete({
+      where: { id },
+    });
+
+    return Response.json({ success: true });
+  } catch (error) {
+    console.error(error);
+
+    return Response.json(
+      { error: "Failed to delete category" },
+      { status: 500 }
+    );
+  }
 }
