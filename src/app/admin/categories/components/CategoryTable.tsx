@@ -126,7 +126,15 @@ const handleDelete = async (id: number) => {
             className="border-t odd:bg-white even:bg-gray-50 hover:bg-orange-50/50 transition"
             >
               <td className="px-5 py-4 font-medium text-gray-800">
-                {cat.name}
+              <div className="flex items-center gap-2">
+                {/* 🏷️ Category Name */}
+                <span>{cat.name}</span>
+
+                {/* 🔥 Product Count Badge */}
+                <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                    {cat._count?.products || 0} items
+                </span>
+                </div>
               </td>
 
               <td className="px-5 py-4">
