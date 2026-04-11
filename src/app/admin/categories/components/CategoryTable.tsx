@@ -131,31 +131,42 @@ const handleDelete = async (id: number) => {
                 <span>{cat.name}</span>
 
                 {/* 🔥 Product Count Badge */}
-                <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                <span
+                    className={`text-xs px-2 py-0.5 rounded-full ${
+                        cat._count?.products > 0
+                        ? "bg-green-100 text-green-700"
+                        : "bg-gray-100 text-gray-500"
+                    }`}
+                    >
                     {cat._count?.products || 0} items
-                </span>
+                    </span>
                 </div>
               </td>
 
               <td className="px-5 py-4">
                 <div className="flex justify-center gap-2">
                <button
-  onClick={() => {
-    setEditingCategory(cat);
-    setName(cat.name);
-    setShowForm(true);
-  }}
-  className="px-3 py-1.5 text-sm rounded-md bg-blue-50 text-blue-600"
->
-  Edit
-</button>
+                onClick={() => {
+                    setEditingCategory(cat);
+                    setName(cat.name);
+                    setShowForm(true);
+                }}
+                className="px-3 py-1.5 text-sm rounded-md bg-blue-50 text-blue-600"
+                >
+                Edit
+                </button>
 
-                  <button
+                 <button
                     onClick={() => handleDelete(cat.id)}
-                    className="px-3 py-1.5 text-sm rounded-md bg-red-50 text-red-600 hover:bg-red-100 transition"
-                  >
+                    disabled={cat._count?.products > 0}
+                    className={`px-3 py-1.5 text-sm rounded-md ${
+                        cat._count?.products > 0
+                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                        : "bg-red-50 text-red-600 hover:bg-red-100"
+                    }`}
+                    >
                     Delete
-                  </button>
+                    </button>
                 </div>
               </td>
             </tr>
