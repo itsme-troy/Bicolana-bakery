@@ -5,6 +5,12 @@ import { useEffect, useState } from "react";
 export default function CategoryTable({ onDeleteSuccess  }: any) {
   const [categories, setCategories] = useState([]);
 
+    // 🔥 Track which row is being edited (by ID)
+  const [editingId, setEditingId] = useState<number | null>(null);
+
+  // 🔥 Store temporary input value while editing
+  const [editName, setEditName] = useState("");
+
   const fetchCategories = async () => {
     const res = await fetch("/api/categories");
     const data = await res.json();
@@ -14,6 +20,7 @@ export default function CategoryTable({ onDeleteSuccess  }: any) {
 const [name, setName] = useState("");
 const [editingCategory, setEditingCategory] = useState<any>(null);
 
+// 🗑 DELETE category
 const handleDelete = async (id: number) => {
   if (!confirm("Delete this category?")) return;
 
@@ -21,11 +28,35 @@ const handleDelete = async (id: number) => {
     method: "DELETE",
   });
 
-  // ✅ Refresh table AFTER delete
   fetchCategories();
-
-  // ✅ Toast
   onDeleteSuccess("Category deleted successfully!");
+};
+
+// 🔥 UPDATE category (INLINE EDIT SAVE)
+const handleUpdate = async (id: number) => {
+  // ✅ Prevent empty input
+  if (!editName.trim()) {
+    alert("Category name is required");
+    return;
+  }
+
+  // ✅ Send PUT request to backend
+  await fetch(`/api/categories/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ name: editName }),
+  });
+
+  // 🔄 Exit edit mode
+  setEditingId(null);
+
+  // 🧹 Clear input
+  setEditName("");
+
+  // 🔁 Refresh table data
+  fetchCategories();
 };
 
 
@@ -34,7 +65,7 @@ const handleDelete = async (id: number) => {
   }, []);
 
   return (
-  <div className="bg-white border border-neutral-200 rounded-xl shadow-sm overflow-hidden">
+  <div className="bg-white border border-neutral-200 rounded-xl shadow-sm overflow-visible">
     {/* HEADER */}
    <div className="px-5 py-4 border-b flex justify-between items-center">
   <h2 className="font-semibold text-gray-800">
@@ -128,7 +159,17 @@ const handleDelete = async (id: number) => {
               <td className="px-5 py-4 font-medium text-gray-800">
               <div className="flex items-center gap-2">
                 {/* 🏷️ Category Name */}
+                {editingId === cat.id ? (
+                // 🔥 EDIT MODE
+                <input
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="border px-2 py-1 rounded text-sm"
+                />
+                ) : (
+                // 🔥 NORMAL MODE
                 <span>{cat.name}</span>
+                )}
 
                 {/* 🔥 Product Count Badge */}
                 <span
@@ -145,28 +186,88 @@ const handleDelete = async (id: number) => {
 
               <td className="px-5 py-4">
                 <div className="flex justify-center gap-2">
-               <button
-                onClick={() => {
-                    setEditingCategory(cat);
-                    setName(cat.name);
-                    setShowForm(true);
-                }}
-                className="px-3 py-1.5 text-sm rounded-md bg-blue-50 text-blue-600"
-                >
-                Edit
-                </button>
+               <div className="flex justify-center gap-2">
+  {editingId === cat.id ? (
+    <>
+      {/* ✅ SAVE BUTTON */}
+      <button
+        onClick={() => handleUpdate(cat.id)}
+        className="px-3 py-1.5 text-sm rounded-md bg-green-50 text-green-600"
+      >
+        Save
+      </button>
 
-                 <button
-                    onClick={() => handleDelete(cat.id)}
-                    disabled={cat._count?.products > 0}
-                    className={`px-3 py-1.5 text-sm rounded-md ${
+      {/* ❌ CANCEL BUTTON */}
+      <button
+        onClick={() => {
+          setEditingId(null); // exit edit mode
+          setEditName("");   // reset input
+        }}
+        className="px-3 py-1.5 text-sm rounded-md bg-gray-100 text-gray-600"
+      >
+        Cancel
+      </button>
+    </>
+  ) : (
+    <>
+        {/* ✏️ EDIT BUTTON */}
+        <button
+            onClick={() => {
+            setEditingId(cat.id);   // set row in edit mode
+            setEditName(cat.name);  // preload input value
+            }}
+            className="px-3 py-1.5 text-sm rounded-md bg-blue-50 text-blue-600"
+        >
+            Edit
+        </button>
+
+        {/* 🗑 DELETE BUTTON (unchanged) */}
+        <div className="relative group">
+            <button
+            onClick={() => handleDelete(cat.id)}
+            disabled={cat._count?.products > 0}
+            className={`px-3 py-1.5 text-sm rounded-md ${
+                cat._count?.products > 0
+                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                : "bg-red-50 text-red-600 hover:bg-red-100"
+            }`}
+            >
+            Delete
+            </button>
+
+            {/* 🔥 Tooltip */}
+            {cat._count?.products > 0 && (
+            <div className="absolute z-50 bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap
+                bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition">
+                Cannot delete category with products
+            </div>
+            )}
+        </div>
+        </>
+    )}
+    </div>
+
+                <div className="relative group">
+                    <button
+                        onClick={() => handleDelete(cat.id)}
+                        disabled={cat._count?.products > 0}
+                        className={`px-3 py-1.5 text-sm rounded-md ${
                         cat._count?.products > 0
-                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                        : "bg-red-50 text-red-600 hover:bg-red-100"
-                    }`}
+                            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                            : "bg-red-50 text-red-600 hover:bg-red-100"
+                        }`}
                     >
-                    Delete
+                        Delete
                     </button>
+
+                    {/* 🔥 Custom Tooltip */}
+                    {cat._count?.products > 0 && (
+                        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap
+                        bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition">
+                        Cannot delete category with products
+                        </div>
+                    )}
+                    </div>
                 </div>
               </td>
             </tr>
