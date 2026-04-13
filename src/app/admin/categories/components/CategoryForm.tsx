@@ -1,5 +1,5 @@
 "use client";
-
+import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
 
 export default function CategoryForm({ onSuccess, editingCategory }: any) {
@@ -15,7 +15,7 @@ export default function CategoryForm({ onSuccess, editingCategory }: any) {
     e.preventDefault();
 
     if (!name.trim()) {
-      alert("Category name is required");
+      toast.error("Category name is required");
       return;
     }
 
@@ -37,7 +37,7 @@ export default function CategoryForm({ onSuccess, editingCategory }: any) {
 
     // Optional: check if request succeeded
     if (!res.ok) {
-      alert("Something went wrong");
+      toast.error("Something went wrong");
       return;
     }
 
@@ -45,7 +45,8 @@ export default function CategoryForm({ onSuccess, editingCategory }: any) {
     setName("");
 
     // Trigger refresh + toast
-    onSuccess("Category saved successfully!");
+    toast.success("Category saved successfully!");
+    onSuccess?.();
   };
 
   return (

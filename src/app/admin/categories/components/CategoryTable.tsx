@@ -1,8 +1,8 @@
 "use client";
-
+import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
 
-export default function CategoryTable({ onDeleteSuccess }: any) {
+export default function CategoryTable() {
   const [categories, setCategories] = useState([]);
 
   // 🔥 Track which row is being edited (by ID)
@@ -30,14 +30,14 @@ export default function CategoryTable({ onDeleteSuccess }: any) {
     });
 
     fetchCategories(); //  refresh table
-    onDeleteSuccess("Category deleted successfully!");
+    toast.success("Category deleted successfully!");
   };
 
   // 🔥 UPDATE category (INLINE EDIT SAVE)
   const handleUpdate = async (id: number) => {
     // ✅ Prevent empty input
     if (!editName.trim()) {
-      alert("Category name is required");
+      toast.error("Category name is required");
       return;
     }
 
@@ -49,8 +49,9 @@ export default function CategoryTable({ onDeleteSuccess }: any) {
       },
       body: JSON.stringify({ name: editName }),
     });
+    toast.success("Category updated successfully!");
 
-    // 🔄 Exit edit mode
+    // Exit edit mode
     setEditingId(null);
 
     // 🧹 Clear input
@@ -88,7 +89,7 @@ export default function CategoryTable({ onDeleteSuccess }: any) {
               e.preventDefault();
 
               if (!name.trim()) {
-                alert("Category name is required");
+                toast.error("Category name is required");
                 return;
               }
 
@@ -106,6 +107,11 @@ export default function CategoryTable({ onDeleteSuccess }: any) {
                 },
                 body: JSON.stringify({ name }),
               });
+              toast.success(
+                editingCategory
+                  ? "Category updated successfully"
+                  : "Category added successfully",
+              );
 
               //  Reset states after submit
               setName("");
@@ -275,9 +281,6 @@ export default function CategoryTable({ onDeleteSuccess }: any) {
                 onClick={async () => {
                   await handleDelete(deleteTarget.id);
                   setDeleteTarget(null);
-
-                  // 🔥 optional toast (if you want)
-                  onDeleteSuccess("Category deleted successfully!");
                 }}
                 className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-500"
               >
