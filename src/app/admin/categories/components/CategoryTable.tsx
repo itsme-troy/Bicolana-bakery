@@ -20,6 +20,12 @@ export default function CategoryTable() {
   const [name, setName] = useState("");
   const [editingCategory, setEditingCategory] = useState<any>(null);
 
+  // 🔍 Search
+  const [search, setSearch] = useState("");
+
+  // 📊 Filter
+  const [filter, setFilter] = useState("all");
+
   // 🔥 Store category to delete (for modal)
   const [deleteTarget, setDeleteTarget] = useState<any>(null);
 
@@ -65,12 +71,51 @@ export default function CategoryTable() {
     fetchCategories();
   }, []);
 
+  // 🔥 Filtered categories (search + filter)
+  const filteredCategories = categories
+    .filter((cat: any) => {
+      // 🔍 search filter
+      if (!search.trim()) return true;
+      return cat.name.toLowerCase().includes(search.toLowerCase());
+    })
+    .filter((cat: any) => {
+      // 📊 category filter
+      if (filter === "all") return true;
+      if (filter === "withProducts") return cat._count?.products > 0;
+      if (filter === "empty") return cat._count?.products === 0;
+    });
+
   return (
     <div className="bg-white border border-neutral-200 rounded-xl shadow-sm overflow-visible">
       {/* HEADER */}
-      <div className="px-5 py-4 border-b flex justify-between items-center">
-        <h2 className="font-semibold text-gray-800">Category List</h2>
+      <div className="px-5 py-4 border-b flex flex-col gap-3 lg:flex-row lg:items-center">
+        <h2 className="flex-1 font-semibold text-gray-800">Category List</h2>
 
+        {/* 🔥 ADD THIS RIGHT AFTER TITLE */}
+        <span className="text-sm text-gray-500 whitespace-nowrap">
+          {filteredCategories.length} categories
+        </span>
+
+        {/* 🔍 SEARCH */}
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search categories..."
+          className="w-full lg:w-64 border px-3 py-2 rounded-lg text-sm focus:ring-2 focus:ring-orange-500"
+        />
+
+        {/* 📊 FILTER */}
+        <select
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          className="border px-3 py-2 rounded-lg text-sm"
+        >
+          <option value="all">All</option>
+          <option value="withProducts">With Products</option>
+          <option value="empty">Empty</option>
+        </select>
+
+        {/* ➕ BUTTON */}
         <button
           onClick={() => {
             setEditingCategory(null);
@@ -145,7 +190,7 @@ export default function CategoryTable() {
         </thead>
 
         <tbody>
-          {categories.length === 0 ? (
+          {filteredCategories.length === 0 ? (
             <tr>
               <td colSpan={2} className="text-center py-10 text-gray-400">
                 <div className="flex flex-col items-center">
@@ -155,7 +200,7 @@ export default function CategoryTable() {
               </td>
             </tr>
           ) : (
-            categories.map((cat: any) => (
+            filteredCategories.map((cat: any) => (
               <tr
                 key={cat.id}
                 className="border-t odd:bg-white even:bg-gray-50 hover:bg-orange-50/50 transition"
