@@ -71,18 +71,38 @@ export default function CategoryTable() {
     fetchCategories();
   }, []);
 
+  const [sort, setSort] = useState("nameAsc");
+
   // 🔥 Filtered categories (search + filter)
   const filteredCategories = categories
     .filter((cat: any) => {
-      // 🔍 search filter
       if (!search.trim()) return true;
       return cat.name.toLowerCase().includes(search.toLowerCase());
     })
     .filter((cat: any) => {
-      // 📊 category filter
       if (filter === "all") return true;
       if (filter === "withProducts") return cat._count?.products > 0;
       if (filter === "empty") return cat._count?.products === 0;
+    })
+    // 🔥 ADD SORTING HERE
+    .sort((a: any, b: any) => {
+      if (sort === "nameAsc") {
+        return a.name.localeCompare(b.name);
+      }
+
+      if (sort === "nameDesc") {
+        return b.name.localeCompare(a.name);
+      }
+
+      if (sort === "mostProducts") {
+        return (b._count?.products || 0) - (a._count?.products || 0);
+      }
+
+      if (sort === "leastProducts") {
+        return (a._count?.products || 0) - (b._count?.products || 0);
+      }
+
+      return 0;
     });
 
   return (
@@ -115,6 +135,21 @@ export default function CategoryTable() {
           <option value="empty">Empty</option>
         </select>
 
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-gray-500">Sort by:</span>
+
+          {/* 🔽 SORT */}
+          <select
+            value={sort}
+            onChange={(e) => setSort(e.target.value)}
+            className="border px-3 py-2 rounded-lg text-sm"
+          >
+            <option value="nameAsc">Name (A–Z)</option>
+            <option value="nameDesc">Name (Z–A)</option>
+            <option value="mostProducts">Most Products</option>
+            <option value="leastProducts">Least Products</option>
+          </select>
+        </div>
         {/* ➕ BUTTON */}
         <button
           onClick={() => {
