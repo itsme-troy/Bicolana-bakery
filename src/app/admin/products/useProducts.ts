@@ -13,6 +13,7 @@ export function useProducts() {
 
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
+    const [sort, setSort] = useState("nameAsc");
 
   const fetchProducts = async () => {
     try {
@@ -43,20 +44,48 @@ export function useProducts() {
 
   // ✅ FIX: Memoize filtering so it does NOT affect hook order
   const filtered = useMemo(() => {
-    return products
-      .filter((p) => {
-        if (categoryFilter === "all") return true;
-        return String(p.categoryId) === String(categoryFilter);
-      })
-      .filter((p) => {
-        if (!search.trim()) return true;
-        const q = search.toLowerCase();
-        return (
-          p.name.toLowerCase().includes(q) ||
-          p.description?.toLowerCase().includes(q)
-        );
-      });
-  }, [products, categoryFilter, search]);
+  return products
+    .filter((p) => {
+      if (categoryFilter === "all") return true;
+      return String(p.categoryId) === String(categoryFilter);
+    })
+    .filter((p) => {
+      if (!search.trim()) return true;
+      const q = search.toLowerCase();
+      return (
+        p.name.toLowerCase().includes(q) ||
+        p.description?.toLowerCase().includes(q)
+      );
+    })
+    // SORT
+    .sort((a, b) => {
+      if (sort === "nameAsc") {
+        return a.name.localeCompare(b.name);
+      }
+
+      if (sort === "nameDesc") {
+        return b.name.localeCompare(a.name);
+      }
+
+      if (sort === "priceHigh") {
+        return b.price - a.price;
+      }
+
+      if (sort === "priceLow") {
+        return a.price - b.price;
+      }
+
+      if (sort === "stockHigh") {
+        return (b.stock || 0) - (a.stock || 0);
+      }
+
+      if (sort === "stockLow") {
+        return (a.stock || 0) - (b.stock || 0);
+      }
+
+      return 0;
+    });
+}, [products, categoryFilter, search, sort]);
 
   const totalPages = Math.ceil(filtered.length / perPage);
 
@@ -85,5 +114,7 @@ export function useProducts() {
     page,
     setPage,
     totalPages,
+    sort,
+    setSort,
   };
 }

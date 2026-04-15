@@ -23,6 +23,8 @@ export default function ProductPage() {
     page,
     setPage,
     totalPages,
+    sort,
+    setSort,
   } = useProducts();
 
   /* ---------------------------
@@ -144,6 +146,19 @@ export default function ProductPage() {
               {c.name}
             </option>
           ))}
+        </select>
+
+        <select
+          value={sort}
+          onChange={(e) => setSort(e.target.value)}
+          className="rounded-lg border px-3 py-2 text-sm"
+        >
+          <option value="nameAsc">Name (A–Z)</option>
+          <option value="nameDesc">Name (Z–A)</option>
+          <option value="priceHigh">Price (High → Low)</option>
+          <option value="priceLow">Price (Low → High)</option>
+          <option value="stockHigh">Stock (High → Low)</option>
+          <option value="stockLow">Stock (Low → High)</option>
         </select>
 
         <span className="whitespace-nowrap text-sm text-neutral-500">
