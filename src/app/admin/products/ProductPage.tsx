@@ -11,8 +11,8 @@ import toast from "react-hot-toast";
 
 export default function ProductPage() {
   const {
+    products = [],
     loading,
-    products,
     categories,
     search,
     setSearch,
@@ -113,10 +113,6 @@ export default function ProductPage() {
     };
   }, [showForm]);
 
-  if (loading) {
-    return <p className="p-6 text-sm text-neutral-500">Loading products…</p>;
-  }
-
   return (
     <div className="p-4 sm:p-6 text-neutral-800">
       {/* Breadcrumb */}
@@ -177,6 +173,7 @@ export default function ProductPage() {
       <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
         <ProductTable
           products={products}
+          loading={loading}
           onEdit={handleEdit}
           onDelete={handleDelete}
         />

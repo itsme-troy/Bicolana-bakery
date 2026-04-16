@@ -4,12 +4,14 @@ import { Edit3, Trash2 } from "lucide-react";
 
 interface ProductTableProps {
   products: any[];
+  loading: boolean;
   onEdit: (product: any) => void;
   onDelete: (id: number) => void;
 }
 
 export default function ProductTable({
   products,
+  loading,
   onEdit,
   onDelete,
 }: ProductTableProps) {
@@ -35,7 +37,49 @@ export default function ProductTable({
       </thead>
 
       <tbody>
-        {products.length === 0 ? (
+        {loading ? (
+          // 🔄 SKELETON LOADER
+          Array.from({ length: 6 }).map((_, i) => (
+            <tr key={i} className="animate-pulse border-t">
+              {/* Product (image + name) */}
+              <td className="px-4 py-3">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-md bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse"></div>
+
+                  <div className="h-4 w-32 rounded bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse"></div>
+                </div>
+              </td>
+
+              {/* Category */}
+              <td className="px-4 py-3">
+                <div className="h-4 w-24 rounded bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse"></div>
+              </td>
+
+              {/* Price */}
+              <td className="px-4 py-3">
+                <div className="h-4 w-24 rounded bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse"></div>
+              </td>
+
+              {/* Stock */}
+              <td className="px-4 py-3">
+                <div className="h-4 w-24 rounded bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse"></div>
+              </td>
+
+              {/* Status */}
+              <td className="px-4 py-3">
+                <div className="h-6 w-20 rounded-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse"></div>
+              </td>
+
+              {/* Actions */}
+              <td className="px-4 py-3 text-center">
+                <div className="flex justify-center gap-2">
+                  <div className="h-6 w-6 bg-gray-200 rounded"></div>
+                  <div className="h-6 w-6 bg-gray-200 rounded"></div>
+                </div>
+              </td>
+            </tr>
+          ))
+        ) : products.length === 0 ? (
           <tr>
             <td colSpan={6} className="py-14 text-center text-neutral-400">
               No products yet
@@ -64,9 +108,11 @@ export default function ProductTable({
                 </td>
 
                 <td className="px-4 py-3">{p.category?.name}</td>
+
                 <td className="px-4 py-3">
                   ₱{Number(p.price).toLocaleString()}
                 </td>
+
                 <td className="px-4 py-3">{p.stock ?? 0}</td>
 
                 <td className="px-4 py-3">
