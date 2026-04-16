@@ -238,7 +238,7 @@ export default function CategoryTable() {
             filteredCategories.map((cat: any) => (
               <tr
                 key={cat.id}
-                className="border-t odd:bg-white even:bg-gray-50 hover:bg-orange-50/50 transition"
+                className="border-t odd:bg-white even:bg-gray-50 hover:bg-orange-50/50 transition duration-200 cursor-pointer"
               >
                 <td className="px-5 py-4 font-medium text-gray-800">
                   <div className="flex items-center gap-2">

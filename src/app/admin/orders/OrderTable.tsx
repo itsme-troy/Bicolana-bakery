@@ -39,7 +39,7 @@ export default function OrderTable({
             orders.map((order: any, index: number) => (
               <tr
                 key={order.id}
-                className="group border-t hover:bg-orange-50 text-sm transition-all duration-200"
+                className="group border-t hover:bg-orange-50 text-sm transition-all duration-200 cursor-pointer"
               >
                 <td className="py-3 px-4 text-neutral-500 font-semibold">
                   {index + 1}
@@ -60,8 +60,8 @@ export default function OrderTable({
                       order.status === "completed"
                         ? "bg-green-100 text-green-700"
                         : order.status === "pending"
-                        ? "bg-yellow-100 text-yellow-700"
-                        : "bg-gray-100 text-gray-700"
+                          ? "bg-yellow-100 text-yellow-700"
+                          : "bg-gray-100 text-gray-700"
                     }`}
                   >
                     {order.status}

@@ -33,7 +33,7 @@ export default function UserTable({
             users.map((u: any, i: number) => (
               <tr
                 key={u.id}
-                className="group border-t hover:bg-orange-50 transition"
+                className="group border-t hover:bg-orange-50 transition duration-200 cursor-pointer"
               >
                 <td className="p-3 text-neutral-500">{i + 1}</td>
                 <td className="p-3">{u.name}</td>

@@ -48,7 +48,7 @@ export default function ProductTable({
             return (
               <tr
                 key={p.id}
-                className="border-b last:border-none hover:bg-neutral-50"
+                className="hover:bg-orange-50 transition duration-200 cursor-pointer"
               >
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
