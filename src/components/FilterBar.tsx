@@ -1,88 +1,72 @@
 "use client";
 
-interface Option {
+import React from "react";
+
+type FilterOption = {
   label: string;
   value: string;
-}
+};
 
-interface Props {
-  search?: string;
-  setSearch?: (value: string) => void;
+type FilterBarProps = {
+  search: string;
+  onSearchChange: (value: string) => void;
 
-  filter?: string;
-  setFilter?: (value: string) => void;
-  filterOptions?: Option[];
+  filters?: FilterOption[];
+  activeFilter?: string;
+  onFilterChange?: (value: string) => void;
 
-  sort?: string;
-  setSort?: (value: string) => void;
-  sortOptions?: Option[];
-
-  placeholder?: string;
-  rightSlot?: React.ReactNode; // 🔥 for buttons like "+ Add"
-}
+  actionLabel?: string;
+  onActionClick?: () => void;
+};
 
 export default function FilterBar({
   search,
-  setSearch,
-  filter,
-  setFilter,
-  filterOptions = [],
-  sort,
-  setSort,
-  sortOptions = [],
-  placeholder = "Search...",
-  rightSlot,
-}: Props) {
+  onSearchChange,
+  filters = [],
+  activeFilter,
+  onFilterChange,
+  actionLabel,
+  onActionClick,
+}: FilterBarProps) {
   return (
-    <div className="flex flex-wrap items-center gap-2 justify-between">
-      {/* LEFT SIDE */}
-      <div className="flex flex-wrap items-center gap-2">
-        {/* 🔍 SEARCH */}
-        {setSearch && (
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder={placeholder}
-            className="border px-3 py-2 rounded-lg text-sm w-[220px]"
-          />
-        )}
-
-        {/* 🔽 FILTER */}
-        {setFilter && filterOptions.length > 0 && (
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="border px-3 py-2 rounded-lg text-sm"
+    <div className="flex items-center justify-between mb-4 gap-4 flex-wrap">
+      {/* LEFT: Filters */}
+      <div className="flex items-center gap-2">
+        {filters.map((filter) => (
+          <button
+            key={filter.value}
+            onClick={() => onFilterChange?.(filter.value)}
+            className={`px-3 py-1 rounded-md text-sm capitalize transition
+              ${
+                activeFilter === filter.value
+                  ? "bg-orange-500 text-white"
+                  : "bg-gray-100 hover:bg-gray-200"
+              }`}
           >
-            {filterOptions.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        )}
-
-        {/* 🔽 SORT */}
-        {setSort && sortOptions.length > 0 && (
-          <div className="flex items-center gap-1">
-            <span className="text-xs text-gray-500">Sort by:</span>
-            <select
-              value={sort}
-              onChange={(e) => setSort(e.target.value)}
-              className="border px-3 py-2 rounded-lg text-sm"
-            >
-              {sortOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
+            {filter.label}
+          </button>
+        ))}
       </div>
 
-      {/* RIGHT SIDE (e.g. + Add button) */}
-      {rightSlot && <div>{rightSlot}</div>}
+      {/* RIGHT: Search + Action */}
+      <div className="flex items-center gap-2">
+        <input
+          type="text"
+          placeholder="Search..."
+          value={search}
+          onChange={(e) => onSearchChange(e.target.value)}
+          className="border rounded-md px-3 py-1 text-sm"
+        />
+
+        {actionLabel && (
+          <button
+            onClick={onActionClick}
+            className="bg-orange-500 text-white px-4 py-1 rounded-md text-sm hover:bg-orange-600"
+          >
+            + {actionLabel}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
