@@ -1,7 +1,6 @@
-// UserPage.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useUsers } from "./useUsers";
 import UserTable from "./UserTable";
 import UserForm from "./UserForm";
@@ -15,6 +14,10 @@ export default function UserPage() {
 
   const [showForm, setShowForm] = useState(false);
   const [editUser, setEditUser] = useState<any | null>(null);
+
+  // 🔥 NEW STATES
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("newest");
 
   const [userName, setUserName] = useState("");
   const [userEmail, setUserEmail] = useState("");
@@ -30,6 +33,37 @@ export default function UserPage() {
     setShowForm(true);
   };
 
+  // 🔥 FILTER + SORT LAYER
+  const processedUsers = useMemo(() => {
+    let data = [...users];
+
+    // 🎯 Role filter
+    if (roleFilter !== "all") {
+      data = data.filter(
+        (u) => u.role.toLowerCase() === roleFilter.toLowerCase(),
+      );
+    }
+
+    // 🔽 Sorting
+    if (sortBy === "name-asc") {
+      data.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (sortBy === "name-desc") {
+      data.sort((a, b) => b.name.localeCompare(a.name));
+    } else if (sortBy === "newest") {
+      data.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      );
+    } else if (sortBy === "oldest") {
+      data.sort(
+        (a, b) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+      );
+    }
+
+    return data;
+  }, [users, roleFilter, sortBy]);
+
   return (
     <>
       <div className="flex items-center justify-between mb-6">
@@ -39,12 +73,40 @@ export default function UserPage() {
         </div>
 
         <div className="flex items-center gap-3">
+          {/* 🔍 SEARCH (already backend-powered) */}
           <input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1); // reset page on search
+            }}
             placeholder="Search..."
             className="border rounded px-3 py-2 text-gray-900"
           />
+
+          {/* 🎯 ROLE FILTER */}
+          <select
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value)}
+            className="border rounded px-3 py-2 text-gray-900"
+          >
+            <option value="all">All Roles</option>
+            <option value="customer">Customer</option>
+            <option value="admin">Admin</option>
+          </select>
+
+          {/* 🔽 SORT */}
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="border rounded px-3 py-2 text-gray-900"
+          >
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+            <option value="name-asc">Name (A–Z)</option>
+            <option value="name-desc">Name (Z–A)</option>
+          </select>
+
           <button
             onClick={() => {
               setEditUser(null);
@@ -58,13 +120,15 @@ export default function UserPage() {
       </div>
 
       <UserTable
-        users={users}
+        users={processedUsers} // ✅ IMPORTANT CHANGE
         handleEditUser={handleEdit}
         handleDeleteUser={async (id: number) => {
           if (!confirm("Delete user?")) return;
 
           try {
-            const res = await fetch(`/api/users/${id}`, { method: "DELETE" });
+            const res = await fetch(`/api/users/${id}`, {
+              method: "DELETE",
+            });
             const data = await res.json();
 
             if (!res.ok) throw new Error(data.error);
@@ -102,7 +166,9 @@ export default function UserPage() {
                   editUser ? `/api/users/${editUser.id}` : "/api/users",
                   {
                     method: editUser ? "PUT" : "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
                     body: JSON.stringify({
                       name: userName,
                       email: userEmail,
@@ -112,10 +178,10 @@ export default function UserPage() {
                   },
                 );
 
-                const data = await res.json(); // ✅ ADD THIS
+                const data = await res.json();
 
                 if (!res.ok) {
-                  console.error("SERVER ERROR:", data); // ✅ ADD THIS
+                  console.error("SERVER ERROR:", data);
                   throw new Error(data.error || "Request failed");
                 }
 
@@ -124,7 +190,7 @@ export default function UserPage() {
                 await fetchUsers();
                 setShowForm(false);
               } catch (err: any) {
-                toast.error(err.message); // ✅ now shows real error
+                toast.error(err.message);
               }
             }}
           />
